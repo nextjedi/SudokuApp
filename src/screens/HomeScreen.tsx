@@ -15,12 +15,14 @@ interface HomeScreenProps {
   onNewGame: () => void;
   onViewStats: () => void;
   onViewSettings: () => void;
+  onViewBlog: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   onNewGame,
   onViewStats,
   onViewSettings,
+  onViewBlog,
 }) => {
   const dispatch = useDispatch();
   const difficulty = useSelector((state: RootState) => state.game.difficulty);
@@ -115,6 +117,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               variant="secondary"
               style={styles.secondaryButton}
             />
+            <Button
+              title="Blog"
+              onPress={onViewBlog}
+              variant="secondary"
+              style={styles.secondaryButton}
+            />
+          </View>
+          <View style={styles.secondaryButtons}>
             <Button
               title="Settings"
               onPress={onViewSettings}

@@ -3,12 +3,15 @@ import { Provider } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { store } from './src/store/store';
 import { HomeScreen, GameScreen, StatsScreen, SettingsScreen } from './src/screens';
+import { BlogScreen } from './src/screens/BlogScreen';
+import { BlogPostScreen } from './src/screens/BlogPostScreen';
 import { ErrorBoundary } from './src/components';
 
-type Screen = 'home' | 'game' | 'stats' | 'settings';
+type Screen = 'home' | 'game' | 'stats' | 'settings' | 'blog' | 'blogPost';
 
 function AppContent() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
+  const [currentPostId, setCurrentPostId] = useState<string | null>(null);
 
   // Persist state to AsyncStorage
   useEffect(() => {
@@ -49,6 +52,7 @@ function AppContent() {
             onNewGame={() => setCurrentScreen('game')}
             onViewStats={() => setCurrentScreen('stats')}
             onViewSettings={() => setCurrentScreen('settings')}
+            onViewBlog={() => setCurrentScreen('blog')}
           />
         );
       case 'game':
@@ -57,6 +61,23 @@ function AppContent() {
         return <StatsScreen onBack={() => setCurrentScreen('home')} />;
       case 'settings':
         return <SettingsScreen onBack={() => setCurrentScreen('home')} />;
+      case 'blog':
+        return (
+          <BlogScreen
+            onBack={() => setCurrentScreen('home')}
+            onPostPress={(postId: string) => {
+              setCurrentPostId(postId);
+              setCurrentScreen('blogPost');
+            }}
+          />
+        );
+      case 'blogPost':
+        return (
+          <BlogPostScreen
+            postId={currentPostId || ''}
+            onBack={() => setCurrentScreen('blog')}
+          />
+        );
       default:
         return null;
     }
