@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 
 interface NumberPadProps {
@@ -7,12 +7,16 @@ interface NumberPadProps {
   disabled?: boolean;
 }
 
-export const NumberPad: React.FC<NumberPadProps> = ({
+export const NumberPad = React.memo<NumberPadProps>(({
   onNumberPress,
   onErase,
   disabled = false,
 }) => {
-  const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+  const numbers = useMemo(() => [1, 2, 3, 4, 5, 6, 7, 8, 9], []);
+
+  const handleNumberPress = useCallback((num: number) => {
+    onNumberPress(num);
+  }, [onNumberPress]);
 
   return (
     <View style={styles.container}>
@@ -21,7 +25,7 @@ export const NumberPad: React.FC<NumberPadProps> = ({
           <TouchableOpacity
             key={num}
             style={[styles.numberButton, disabled && styles.disabledButton]}
-            onPress={() => onNumberPress(num)}
+            onPress={() => handleNumberPress(num)}
             disabled={disabled}
             activeOpacity={0.7}
           >
@@ -43,7 +47,9 @@ export const NumberPad: React.FC<NumberPadProps> = ({
       </TouchableOpacity>
     </View>
   );
-};
+});
+
+NumberPad.displayName = 'NumberPad';
 
 const styles = StyleSheet.create({
   container: {

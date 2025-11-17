@@ -34,8 +34,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.title}>Sudoku</Text>
-          <Text style={styles.subtitle}>Classic Puzzle Game</Text>
+          <Text style={styles.title}>Sudoku Streak</Text>
+          <Text style={styles.subtitle}>Build Your Daily Puzzle Habit</Text>
           {currentStreak > 0 && (
             <View style={styles.streakContainer}>
               <Text style={styles.streakEmoji}>🔥</Text>

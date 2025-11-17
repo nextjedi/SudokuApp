@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { TouchableOpacity, Text, StyleSheet, ViewStyle } from 'react-native';
 import { SudokuCell as CellType } from '../types';
 
@@ -11,7 +11,7 @@ interface CellProps {
   onPress: (row: number, col: number) => void;
 }
 
-export const Cell: React.FC<CellProps> = ({
+export const Cell = React.memo<CellProps>(({
   cell,
   row,
   col,
@@ -19,25 +19,22 @@ export const Cell: React.FC<CellProps> = ({
   isHighlighted,
   onPress,
 }) => {
-  const handlePress = () => {
+  const handlePress = useCallback(() => {
     onPress(row, col);
-  };
+  }, [row, col, onPress]);
 
-  const getBorderStyle = (): ViewStyle => {
-    const borderStyle: ViewStyle = {
-      borderTopWidth: row % 3 === 0 ? 3 : 1,
-      borderLeftWidth: col % 3 === 0 ? 3 : 1,
-      borderRightWidth: col === 8 ? 3 : 0,
-      borderBottomWidth: row === 8 ? 3 : 0,
-    };
-    return borderStyle;
-  };
+  const borderStyle = useMemo((): ViewStyle => ({
+    borderTopWidth: row % 3 === 0 ? 3 : 1,
+    borderLeftWidth: col % 3 === 0 ? 3 : 1,
+    borderRightWidth: col === 8 ? 3 : 0,
+    borderBottomWidth: row === 8 ? 3 : 0,
+  }), [row, col]);
 
   return (
     <TouchableOpacity
       style={[
         styles.cell,
-        getBorderStyle(),
+        borderStyle,
         isSelected && styles.selectedCell,
         isHighlighted && !isSelected && styles.highlightedCell,
         cell.isInitial && styles.initialCell,
@@ -56,7 +53,17 @@ export const Cell: React.FC<CellProps> = ({
       </Text>
     </TouchableOpacity>
   );
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison for optimal re-rendering
+  return (
+    prevProps.cell.value === nextProps.cell.value &&
+    prevProps.cell.isInitial === nextProps.cell.isInitial &&
+    prevProps.isSelected === nextProps.isSelected &&
+    prevProps.isHighlighted === nextProps.isHighlighted
+  );
+});
+
+Cell.displayName = 'Cell';
 
 const styles = StyleSheet.create({
   cell: {

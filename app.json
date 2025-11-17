@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "SudokuApp",
-    "slug": "sudoku-app",
+    "name": "Sudoku Streak",
+    "slug": "sudoku-streak",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

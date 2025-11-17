@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { SudokuGrid as GridType } from '../types';
 import { Cell } from './Cell';
@@ -10,13 +10,13 @@ interface GridProps {
   highlightEnabled: boolean;
 }
 
-export const Grid: React.FC<GridProps> = ({
+export const Grid = React.memo<GridProps>(({
   grid,
   selectedCell,
   onCellPress,
   highlightEnabled,
 }) => {
-  const isHighlighted = (row: number, col: number): boolean => {
+  const isHighlighted = useCallback((row: number, col: number): boolean => {
     if (!highlightEnabled || !selectedCell) return false;
 
     // Highlight same row or column
@@ -39,7 +39,7 @@ export const Grid: React.FC<GridProps> = ({
     }
 
     return false;
-  };
+  }, [highlightEnabled, selectedCell, grid]);
 
   if (grid.length === 0) {
     return null;
@@ -70,7 +70,9 @@ export const Grid: React.FC<GridProps> = ({
       </View>
     </View>
   );
-};
+});
+
+Grid.displayName = 'Grid';
 
 const styles = StyleSheet.create({
   container: {

@@ -9,7 +9,7 @@ interface ButtonProps {
   style?: ViewStyle;
 }
 
-export const Button: React.FC<ButtonProps> = ({
+export const Button = React.memo<ButtonProps>(({
   title,
   onPress,
   variant = 'primary',
@@ -43,7 +43,9 @@ export const Button: React.FC<ButtonProps> = ({
       </Text>
     </TouchableOpacity>
   );
-};
+});
+
+Button.displayName = 'Button';
 
 const styles = StyleSheet.create({
   button: {

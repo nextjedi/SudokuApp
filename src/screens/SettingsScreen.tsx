@@ -136,9 +136,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
         </View>
 
         <View style={styles.infoSection}>
-          <Text style={styles.infoText}>Sudoku App v1.0.0</Text>
+          <Text style={styles.infoText}>Sudoku Streak v1.0.0</Text>
           <Text style={styles.infoSubtext}>
-            A classic puzzle game for relaxation and mental exercise
+            Build your daily puzzle habit with streak tracking
           </Text>
         </View>
 

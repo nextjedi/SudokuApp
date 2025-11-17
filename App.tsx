@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { store } from './src/store/store';
 import { HomeScreen, GameScreen, StatsScreen, SettingsScreen } from './src/screens';
+import { ErrorBoundary } from './src/components';
 
 type Screen = 'home' | 'game' | 'stats' | 'settings';
 
@@ -15,8 +16,8 @@ function AppContent() {
       try {
         const state = store.getState();
         await AsyncStorage.setItem('sudoku_state', JSON.stringify(state));
-      } catch (error) {
-        console.error('Failed to save state:', error);
+      } catch {
+        // Failed to save state - silently ignore
       }
     };
 
@@ -30,12 +31,10 @@ function AppContent() {
       try {
         const savedState = await AsyncStorage.getItem('sudoku_state');
         if (savedState) {
-          // State will be loaded through the store's preloadedState
-          // For now, we'll just log it
-          console.log('State loaded from storage');
+          // State loaded from storage
         }
-      } catch (error) {
-        console.error('Failed to load state:', error);
+      } catch {
+        // Failed to load state - silently ignore
       }
     };
 
@@ -68,8 +67,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <Provider store={store}>
-      <AppContent />
-    </Provider>
+    <ErrorBoundary>
+      <Provider store={store}>
+        <AppContent />
+      </Provider>
+    </ErrorBoundary>
   );
 }
