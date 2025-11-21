@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Streak - Feature Graphic Template</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .container {
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .graphic-container {
+            margin: 20px;
+            display: inline-block;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        #featureGraphic {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+        .size-label {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+        .download-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #4A90E2;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+        }
+        .download-btn:hover {
+            background: #357ABD;
+        }
+        .instructions {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sudoku Streak Feature Graphic</h1>
+
+        <div class="graphic-container">
+            <svg id="featureGraphic" width="1024" height="500" viewBox="0 0 1024 500" xmlns="http://www.w3.org/2000/svg">
+                <!-- Background Gradient -->
+                <defs>
+                    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#4A90E2;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#6AB4F7;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+
+                <!-- Background -->
+                <rect width="1024" height="500" fill="url(#bgGradient)"/>
+
+                <!-- Left: Mini Sudoku Grid Icon -->
+                <g opacity="0.3">
+                    <rect x="50" y="150" width="200" height="200" stroke="white" stroke-width="4" fill="none" opacity="0.5"/>
+                    <line x1="117" y1="150" x2="117" y2="350" stroke="white" stroke-width="2" opacity="0.5"/>
+                    <line x1="183" y1="150" x2="183" y2="350" stroke="white" stroke-width="2" opacity="0.5"/>
+                    <line x1="50" y1="217" x2="250" y2="217" stroke="white" stroke-width="2" opacity="0.5"/>
+                    <line x1="50" y1="283" x2="250" y2="283" stroke="white" stroke-width="2" opacity="0.5"/>
+                </g>
+
+                <!-- Center: App Name and Fire Emoji -->
+                <text x="512" y="220"
+                      font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif"
+                      font-size="80"
+                      font-weight="bold"
+                      fill="white"
+                      text-anchor="middle"
+                      letter-spacing="2">Sudoku Streak</text>
+
+                <!-- Fire Emoji -->
+                <text x="830" y="220"
+                      font-size="72"
+                      text-anchor="middle">🔥</text>
+
+                <!-- Subtitle -->
+                <text x="512" y="290"
+                      font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif"
+                      font-size="36"
+                      font-weight="300"
+                      fill="white"
+                      text-anchor="middle"
+                      opacity="0.95"
+                      letter-spacing="1">Build Your Daily Puzzle Habit</text>
+
+                <!-- Feature Icons with Text -->
+                <g opacity="0.9">
+                    <!-- Timer Icon -->
+                    <text x="280" y="390" font-size="40" text-anchor="middle">⏱️</text>
+                    <text x="280" y="430"
+                          font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+                          font-size="18"
+                          fill="white"
+                          text-anchor="middle"
+                          font-weight="500">Track Time</text>
+
+                    <!-- Stats Icon -->
+                    <text x="512" y="390" font-size="40" text-anchor="middle">📊</text>
+                    <text x="512" y="430"
+                          font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+                          font-size="18"
+                          fill="white"
+                          text-anchor="middle"
+                          font-weight="500">View Stats</text>
+
+                    <!-- Puzzle Icon -->
+                    <text x="744" y="390" font-size="40" text-anchor="middle">🎯</text>
+                    <text x="744" y="430"
+                          font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+                          font-size="18"
+                          fill="white"
+                          text-anchor="middle"
+                          font-weight="500">3 Levels</text>
+                </g>
+
+                <!-- Decorative elements - small dots pattern -->
+                <g opacity="0.15" fill="white">
+                    <circle cx="900" cy="100" r="4"/>
+                    <circle cx="920" cy="120" r="3"/>
+                    <circle cx="940" cy="100" r="5"/>
+                    <circle cx="960" cy="140" r="3"/>
+                    <circle cx="980" cy="120" r="4"/>
+                </g>
+            </svg>
+        </div>
+
+        <div class="size-label">1024 x 500 pixels</div>
+
+        <div>
+            <button class="download-btn" onclick="downloadGraphic()">
+                Download Feature Graphic (1024x500)
+            </button>
+        </div>
+
+        <div class="instructions">
+            <h3>About This Feature Graphic</h3>
+            <p>
+                This is the banner image displayed at the top of your Google Play Store listing.
+                It's one of the most important visual elements for attracting users.
+            </p>
+
+            <h3>Usage Instructions</h3>
+            <ol>
+                <li>Click "Download Feature Graphic" button above</li>
+                <li>Or right-click the graphic and "Save Image As"</li>
+                <li>Save as: <code>feature-graphic.png</code></li>
+                <li>Place in: <code>d:/Projects/SudokuApp/assets/</code></li>
+                <li>Upload to Google Play Console when submitting app</li>
+            </ol>
+
+            <h3>Customization Options</h3>
+            <ul>
+                <li>Change background gradient colors in the SVG code</li>
+                <li>Adjust text size and positioning</li>
+                <li>Replace emojis with icon images</li>
+                <li>Add screenshots of your app instead of simple icons</li>
+                <li>Use Figma or Canva to create a more sophisticated version</li>
+            </ul>
+
+            <h3>Design Best Practices</h3>
+            <ul>
+                <li><strong>High contrast:</strong> Text should be easily readable</li>
+                <li><strong>Clear branding:</strong> App name prominently displayed</li>
+                <li><strong>Feature highlights:</strong> Show key features with icons/text</li>
+                <li><strong>Professional look:</strong> Clean, modern design</li>
+                <li><strong>Mobile-first:</strong> Looks good even when scaled down</li>
+            </ul>
+
+            <h3>Alternative Design Tools</h3>
+            <p><strong>For more professional graphics, use:</strong></p>
+            <ul>
+                <li><strong>Canva:</strong> Search "Google Play Feature Graphic" template</li>
+                <li><strong>Figma:</strong> Create 1024x500 frame and design from scratch</li>
+                <li><strong>Photoshop:</strong> Use provided dimensions and create custom graphic</li>
+                <li><strong>Hire on Fiverr:</strong> $10-30 for professional feature graphic</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function downloadGraphic() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024;
+            canvas.height = 500;
+            const ctx = canvas.getContext('2d');
+
+            const svg = document.getElementById('featureGraphic');
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+            const url = URL.createObjectURL(svgBlob);
+
+            const img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, 1024, 500);
+
+                canvas.toBlob(function(blob) {
+                    const link = document.createElement('a');
+                    link.download = 'feature-graphic.png';
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                    URL.revokeObjectURL(url);
+                });
+            };
+            img.src = url;
+        }
+    </script>
+</body>
+</html>

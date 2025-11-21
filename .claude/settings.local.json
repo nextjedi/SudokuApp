@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(dir:*)",
+      "Bash(adb logcat:*)",
+      "Bash(npm start)",
+      "Bash(npx expo start --clear)",
+      "Bash(npm run typecheck:*)",
+      "Bash(node create-placeholder-assets.js:*)",
+      "Bash(npm install:*)",
+      "Bash(adb devices:*)",
+      "Bash(npm run android:*)",
+      "Bash(taskkill:*)",
+      "Bash(npx expo start:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(adb shell:*)",
+      "Bash(adb pull:*)",
+      "Bash(rm:*)",
+      "Bash(cp:*)",
+      "Bash(eas build:*)",
+      "Bash(npx expo prebuild:*)",
+      "Bash(./gradlew assembleRelease:*)",
+      "Bash(keytool:*)",
+      "Bash(./gradlew:*)",
+      "Bash(\"$ANDROID_HOME/build-tools/35.0.0/apksigner\" verify --print-certs app/build/outputs/bundle/release/app-release.aab)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
