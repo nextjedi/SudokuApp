@@ -56,7 +56,7 @@ cp android/keystore.properties.example android/keystore.properties
 ### Edit `android/keystore.properties`:
 
 ```properties
-storeFile=app/sudoku-release.keystore
+storeFile=sudoku-release.keystore
 storePassword=YOUR_ACTUAL_KEYSTORE_PASSWORD
 keyAlias=sudoku-release-key
 keyPassword=YOUR_ACTUAL_KEY_PASSWORD
