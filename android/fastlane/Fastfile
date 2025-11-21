@@ -12,24 +12,21 @@ platform :android do
   desc "Build Android app for alpha testing"
   lane :build_alpha do
     gradle(
-      task: "clean assembleRelease",
-      project_dir: "android/"
+      task: "clean assembleRelease"
     )
   end
 
   desc "Build Android app bundle (AAB) for beta testing"
   lane :build_beta do
     gradle(
-      task: "clean bundleRelease",
-      project_dir: "android/"
+      task: "clean bundleRelease"
     )
   end
 
   desc "Build Android app bundle (AAB) for production"
   lane :build_production do
     gradle(
-      task: "clean bundleRelease",
-      project_dir: "android/"
+      task: "clean bundleRelease"
     )
   end
 
@@ -43,7 +40,7 @@ platform :android do
     upload_to_play_store(
       track: 'internal',
       release_status: 'completed',
-      apk: 'android/app/build/outputs/apk/release/app-release.apk',
+      apk: 'app/build/outputs/apk/release/app-release.apk',
       json_key_data: ENV['PLAY_STORE_JSON_KEY']
     )
   end
@@ -54,7 +51,7 @@ platform :android do
     upload_to_play_store(
       track: 'beta',
       release_status: 'completed',
-      aab: 'android/app/build/outputs/bundle/release/app-release.aab',
+      aab: 'app/build/outputs/bundle/release/app-release.aab',
       json_key_data: ENV['PLAY_STORE_JSON_KEY']
     )
   end
@@ -65,7 +62,7 @@ platform :android do
     upload_to_play_store(
       track: 'production',
       release_status: 'completed',
-      aab: 'android/app/build/outputs/bundle/release/app-release.aab',
+      aab: 'app/build/outputs/bundle/release/app-release.aab',
       json_key_data: ENV['PLAY_STORE_JSON_KEY']
     )
   end
@@ -82,7 +79,7 @@ platform :android do
   desc "Increment version code"
   lane :bump_version do
     increment_version_code(
-      gradle_file_path: "android/app/build.gradle"
+      gradle_file_path: "app/build.gradle"
     )
   end
 
