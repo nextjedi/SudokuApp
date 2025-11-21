@@ -21,6 +21,25 @@ on:
       - 'release/beta'
     tags:
       - 'v*'
+    paths:
+      # Only trigger on changes that affect iOS builds
+      - 'src/**'
+      - 'ios/**'
+      - 'app.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - 'babel.config.js'
+      - 'metro.config.js'
+      - '.github/workflows/ios-build.yml'
+    paths-ignore:
+      # Ignore web-only and documentation changes
+      - 'web/**'
+      - 'web-build/**'
+      - 'docs/**'
+      - '*.md'
+      - '.gitignore'
+      - 'articles/**'
 
 jobs:
   build:
