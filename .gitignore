@@ -78,3 +78,21 @@ coverage
 
 # Expo Router Cache
 .expo/
+
+# CI/CD
+.eas/
+*.aab
+*.apk
+*.ipa
+build/
+android/app/build/
+ios/build/
+
+# Environment secrets (never commit!)
+google-services.json
+GoogleService-Info.plist
+.env.production
+.env.staging
+
+# EAS credentials
+credentials.json
