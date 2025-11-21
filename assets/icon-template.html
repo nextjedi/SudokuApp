@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Streak - App Icon Template</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .container {
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .instructions {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            text-align: left;
+        }
+        .icon-container {
+            margin: 20px;
+            display: inline-block;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 20px;
+        }
+        #icon {
+            display: block;
+        }
+        .size-label {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+        .download-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #4A90E2;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+        }
+        .download-btn:hover {
+            background: #357ABD;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sudoku Streak App Icon</h1>
+
+        <div class="icon-container">
+            <svg id="icon" width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                <!-- Background Gradient -->
+                <defs>
+                    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#4A90E2;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#6AB4F7;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+
+                <!-- Background -->
+                <rect width="512" height="512" rx="100" fill="url(#bgGradient)"/>
+
+                <!-- Sudoku Grid (Simplified 3x3) -->
+                <g stroke="white" stroke-width="4" fill="none" opacity="0.9">
+                    <!-- Outer border -->
+                    <rect x="120" y="120" width="272" height="272" stroke-width="8"/>
+
+                    <!-- Vertical lines -->
+                    <line x1="211" y1="120" x2="211" y2="392" stroke-width="4"/>
+                    <line x1="302" y1="120" x2="302" y2="392" stroke-width="4"/>
+
+                    <!-- Horizontal lines -->
+                    <line x1="120" y1="211" x2="392" y2="211" stroke-width="4"/>
+                    <line x1="120" y1="302" x2="392" y2="302" stroke-width="4"/>
+
+                    <!-- Thick middle lines -->
+                    <line x1="256" y1="120" x2="256" y2="392" stroke-width="6"/>
+                    <line x1="120" y1="256" x2="392" y2="256" stroke-width="6"/>
+                </g>
+
+                <!-- Center Number "9" -->
+                <text x="256" y="290"
+                      font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+                      font-size="140"
+                      font-weight="bold"
+                      fill="white"
+                      text-anchor="middle"
+                      opacity="0.95">9</text>
+
+                <!-- Fire Emoji for Streak -->
+                <text x="380" y="160"
+                      font-size="80"
+                      text-anchor="middle">🔥</text>
+            </svg>
+        </div>
+
+        <div class="size-label">512 x 512 pixels</div>
+
+        <div>
+            <button class="download-btn" onclick="downloadIcon(512, 'icon-512.png')">
+                Download 512x512 (Play Store)
+            </button>
+            <button class="download-btn" onclick="downloadIcon(1024, 'icon.png')">
+                Download 1024x1024 (iOS/Expo)
+            </button>
+        </div>
+
+        <div class="instructions">
+            <h3>How to Use This Template</h3>
+            <ol>
+                <li><strong>Option 1:</strong> Right-click the icon above and "Save Image As"</li>
+                <li><strong>Option 2:</strong> Click the download buttons to save specific sizes</li>
+                <li><strong>Option 3:</strong> Open this HTML in browser and take a screenshot</li>
+                <li><strong>Option 4:</strong> Use this as reference to create in Figma/Canva</li>
+            </ol>
+
+            <h3>Customization Ideas</h3>
+            <ul>
+                <li>Change gradient colors (edit the linearGradient section)</li>
+                <li>Replace "9" with "1-9" or Sudoku text</li>
+                <li>Adjust grid thickness or style</li>
+                <li>Add more numbers in different cells</li>
+                <li>Change fire emoji to a flame icon</li>
+            </ul>
+
+            <h3>For Professional Design</h3>
+            <p>Use this template as inspiration in:</p>
+            <ul>
+                <li><strong>Figma:</strong> Create 512x512 frame, recreate design</li>
+                <li><strong>Canva:</strong> Use custom size 512x512, add elements</li>
+                <li><strong>Photoshop:</strong> Create 512x512 document, design icon</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function downloadIcon(size, filename) {
+            // Create a canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // Get SVG data
+            const svg = document.getElementById('icon');
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+            const url = URL.createObjectURL(svgBlob);
+
+            // Create image from SVG
+            const img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, size, size);
+
+                // Download as PNG
+                canvas.toBlob(function(blob) {
+                    const link = document.createElement('a');
+                    link.download = filename;
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                    URL.revokeObjectURL(url);
+                });
+            };
+            img.src = url;
+        }
+    </script>
+</body>
+</html>
