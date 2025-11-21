@@ -21,6 +21,25 @@ on:
       - 'release/beta'
     tags:
       - 'v*'
+    paths:
+      # Only trigger on changes that affect Android builds
+      - 'src/**'
+      - 'android/**'
+      - 'app.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - 'babel.config.js'
+      - 'metro.config.js'
+      - '.github/workflows/android-build.yml'
+    paths-ignore:
+      # Ignore web-only and documentation changes
+      - 'web/**'
+      - 'web-build/**'
+      - 'docs/**'
+      - '*.md'
+      - '.gitignore'
+      - 'articles/**'
 
 jobs:
   build:
