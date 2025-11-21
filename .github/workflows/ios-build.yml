@@ -1,6 +1,9 @@
 name: iOS Build & Deploy
 
 on:
+  # iOS builds disabled for now - will enable when iOS setup is complete
+  # To enable: uncomment the 'push' section below
+
   workflow_dispatch:
     inputs:
       lane:
@@ -15,31 +18,30 @@ on:
           - deploy_beta
           - deploy_production
 
-  push:
-    branches:
-      - 'release/alpha'
-      - 'release/beta'
-    tags:
-      - 'v*'
-    paths:
-      # Only trigger on changes that affect iOS builds
-      - 'src/**'
-      - 'ios/**'
-      - 'app.json'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'tsconfig.json'
-      - 'babel.config.js'
-      - 'metro.config.js'
-      - '.github/workflows/ios-build.yml'
-    paths-ignore:
-      # Ignore web-only and documentation changes
-      - 'web/**'
-      - 'web-build/**'
-      - 'docs/**'
-      - '*.md'
-      - '.gitignore'
-      - 'articles/**'
+  # Temporarily disabled - uncomment when ready for iOS
+  # push:
+  #   branches:
+  #     - 'release/alpha'
+  #     - 'release/beta'
+  #   tags:
+  #     - 'v*'
+  #   paths:
+  #     - 'src/**'
+  #     - 'ios/**'
+  #     - 'app.json'
+  #     - 'package.json'
+  #     - 'package-lock.json'
+  #     - 'tsconfig.json'
+  #     - 'babel.config.js'
+  #     - 'metro.config.js'
+  #     - '.github/workflows/ios-build.yml'
+  #   paths-ignore:
+  #     - 'web/**'
+  #     - 'web-build/**'
+  #     - 'docs/**'
+  #     - '*.md'
+  #     - '.gitignore'
+  #     - 'articles/**'
 
 jobs:
   build:
