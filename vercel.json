@@ -13,7 +13,11 @@
   },
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/privacy",
+      "destination": "/privacy.html"
+    },
+    {
+      "source": "/((?!privacy\\.html$).*)",
       "destination": "/index.html"
     }
   ],

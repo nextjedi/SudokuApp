@@ -1,0 +1,261 @@
+name: Deploy (Web, Android, iOS)
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+      - 'release/*'
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - 'articles/**'
+      - '.gitignore'
+
+  workflow_dispatch:
+    inputs:
+      deploy_web:
+        description: 'Deploy Web'
+        type: boolean
+        default: true
+      deploy_android:
+        description: 'Deploy Android'
+        type: boolean
+        default: true
+      deploy_ios:
+        description: 'Deploy iOS (disabled)'
+        type: boolean
+        default: false
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  # Detect what changed to determine which platforms need deployment
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      web: ${{ steps.changes.outputs.web }}
+      android: ${{ steps.changes.outputs.android }}
+      ios: ${{ steps.changes.outputs.ios }}
+      shared: ${{ steps.changes.outputs.shared }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect file changes
+        id: changes
+        run: |
+          # Get changed files
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            # Manual trigger - use inputs
+            echo "web=${{ github.event.inputs.deploy_web }}" >> $GITHUB_OUTPUT
+            echo "android=${{ github.event.inputs.deploy_android }}" >> $GITHUB_OUTPUT
+            echo "ios=${{ github.event.inputs.deploy_ios }}" >> $GITHUB_OUTPUT
+            echo "shared=true" >> $GITHUB_OUTPUT
+          else
+            # Get changed files between commits
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git diff --name-only HEAD)
+
+            echo "Changed files:"
+            echo "$CHANGED_FILES"
+
+            # Check for web-specific changes
+            WEB_CHANGES=$(echo "$CHANGED_FILES" | grep -E '^(public/|vercel\.json|\.vercelignore)' || true)
+
+            # Check for android-specific changes
+            ANDROID_CHANGES=$(echo "$CHANGED_FILES" | grep -E '^android/' || true)
+
+            # Check for ios-specific changes
+            IOS_CHANGES=$(echo "$CHANGED_FILES" | grep -E '^ios/' || true)
+
+            # Check for shared changes (affects all platforms)
+            SHARED_CHANGES=$(echo "$CHANGED_FILES" | grep -E '^(src/|App\.tsx|app\.json|package\.json|package-lock\.json|tsconfig\.json|babel\.config\.js|metro\.config\.js|assets/)' || true)
+
+            # Determine what needs deployment
+            if [ -n "$SHARED_CHANGES" ]; then
+              echo "shared=true" >> $GITHUB_OUTPUT
+              echo "web=true" >> $GITHUB_OUTPUT
+              echo "android=true" >> $GITHUB_OUTPUT
+              echo "ios=true" >> $GITHUB_OUTPUT
+            else
+              echo "shared=false" >> $GITHUB_OUTPUT
+              [ -n "$WEB_CHANGES" ] && echo "web=true" >> $GITHUB_OUTPUT || echo "web=false" >> $GITHUB_OUTPUT
+              [ -n "$ANDROID_CHANGES" ] && echo "android=true" >> $GITHUB_OUTPUT || echo "android=false" >> $GITHUB_OUTPUT
+              [ -n "$IOS_CHANGES" ] && echo "ios=true" >> $GITHUB_OUTPUT || echo "ios=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Summary
+        run: |
+          echo "### Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Platform | Will Deploy |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Web | ${{ steps.changes.outputs.web }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Android | ${{ steps.changes.outputs.android }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| iOS | ${{ steps.changes.outputs.ios }} (disabled) |" >> $GITHUB_STEP_SUMMARY
+
+  # Web deployment via Vercel
+  deploy-web:
+    name: Deploy Web (Vercel)
+    needs: detect-changes
+    if: needs.detect-changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Determine environment
+        id: env
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/master" ]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "prod_flag=--prod" >> $GITHUB_OUTPUT
+          else
+            echo "environment=preview" >> $GITHUB_OUTPUT
+            echo "prod_flag=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Pull Vercel Environment
+        run: vercel pull --yes --environment=${{ steps.env.outputs.environment }} --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project
+        run: vercel build ${{ steps.env.outputs.prod_flag }} --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Vercel
+        id: deploy
+        run: |
+          url=$(vercel deploy --prebuilt ${{ steps.env.outputs.prod_flag }} --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=$url" >> $GITHUB_OUTPUT
+          echo "### Web Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "Deployed to: $url" >> $GITHUB_STEP_SUMMARY
+
+  # Android deployment via Fastlane
+  deploy-android:
+    name: Deploy Android
+    needs: detect-changes
+    if: needs.detect-changes.outputs.android == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: false
+
+      - name: Install Node dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Decode Android Keystore
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
+
+      - name: Create keystore.properties
+        run: |
+          cat > android/keystore.properties << EOF
+          storeFile=release.keystore
+          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          EOF
+
+      - name: Install Fastlane
+        run: |
+          cd android
+          gem install fastlane -N
+          bundle init
+          bundle add fastlane
+
+      - name: Determine Fastlane lane
+        id: lane
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+            echo "lane=deploy_production" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/release/beta" ]]; then
+            echo "lane=deploy_beta" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/release/alpha" ]]; then
+            echo "lane=deploy_alpha" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            echo "lane=build_alpha" >> $GITHUB_OUTPUT
+          else
+            echo "lane=build_alpha" >> $GITHUB_OUTPUT
+          fi
+          echo "### Android Build" >> $GITHUB_STEP_SUMMARY
+          echo "Running lane: ${{ steps.lane.outputs.lane || 'build_alpha' }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Run Fastlane
+        env:
+          PLAY_STORE_JSON_KEY: ${{ secrets.PLAY_STORE_JSON_KEY }}
+        run: |
+          cd android
+          bundle exec fastlane ${{ steps.lane.outputs.lane }}
+
+      - name: Upload APK
+        if: contains(steps.lane.outputs.lane, 'alpha') || contains(steps.lane.outputs.lane, 'dev')
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 30
+
+      - name: Upload AAB
+        if: contains(steps.lane.outputs.lane, 'beta') || contains(steps.lane.outputs.lane, 'production')
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 30
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f android/app/release.keystore
+          rm -f android/keystore.properties
+
+  # iOS deployment (DISABLED)
+  deploy-ios:
+    name: Deploy iOS (Disabled)
+    needs: detect-changes
+    if: false  # iOS is disabled
+    runs-on: macos-latest
+    steps:
+      - name: Placeholder
+        run: echo "iOS deployment is currently disabled"
