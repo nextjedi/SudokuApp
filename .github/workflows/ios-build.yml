@@ -1,0 +1,110 @@
+name: iOS Build & Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      lane:
+        description: 'Fastlane lane to run'
+        required: true
+        type: choice
+        options:
+          - build_alpha
+          - build_beta
+          - build_production
+          - deploy_alpha
+          - deploy_beta
+          - deploy_production
+
+  push:
+    branches:
+      - 'release/alpha'
+      - 'release/beta'
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: iOS Build
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: false
+
+      - name: Install Node dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install CocoaPods dependencies
+        run: |
+          cd ios
+          pod install
+
+      - name: Setup Fastlane Match SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.MATCH_GIT_PRIVATE_KEY }}" | base64 -d > ~/.ssh/match_key
+          chmod 600 ~/.ssh/match_key
+          ssh-add ~/.ssh/match_key
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - name: Install Fastlane
+        run: |
+          cd ios
+          gem install fastlane -N
+          bundle init
+          bundle add fastlane
+
+      - name: Determine Fastlane lane
+        id: lane
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "lane=${{ github.event.inputs.lane }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/release/alpha" ]]; then
+            echo "lane=deploy_alpha" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/release/beta" ]]; then
+            echo "lane=deploy_beta" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            echo "lane=deploy_production" >> $GITHUB_OUTPUT
+          else
+            echo "lane=build_alpha" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Fastlane
+        env:
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+          APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_KEY_CONTENT }}
+          PROVISIONING_PROFILE_SPECIFIER: ${{ secrets.PROVISIONING_PROFILE_SPECIFIER }}
+        run: |
+          cd ios
+          bundle exec fastlane ${{ steps.lane.outputs.lane }}
+
+      - name: Upload IPA artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-ipa
+          path: ios/build/*.ipa
+          retention-days: 30
+
+      - name: Cleanup SSH keys
+        if: always()
+        run: |
+          rm -f ~/.ssh/match_key

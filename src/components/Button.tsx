@@ -1,94 +1,103 @@
-import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle } from 'react-native';
+import React from "react";
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  ViewStyle,
+  Platform,
+} from "react-native";
 
 interface ButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'danger';
+  variant?: "primary" | "secondary" | "danger";
   disabled?: boolean;
   style?: ViewStyle;
 }
 
-export const Button = React.memo<ButtonProps>(({
-  title,
-  onPress,
-  variant = 'primary',
-  disabled = false,
-  style,
-}) => {
-  return (
-    <TouchableOpacity
-      style={[
-        styles.button,
-        variant === 'primary' && styles.primaryButton,
-        variant === 'secondary' && styles.secondaryButton,
-        variant === 'danger' && styles.dangerButton,
-        disabled && styles.disabledButton,
-        style,
-      ]}
-      onPress={onPress}
-      disabled={disabled}
-      activeOpacity={0.7}
-    >
-      <Text
+export const Button = React.memo<ButtonProps>(
+  ({ title, onPress, variant = "primary", disabled = false, style }) => {
+    return (
+      <TouchableOpacity
         style={[
-          styles.text,
-          variant === 'primary' && styles.primaryText,
-          variant === 'secondary' && styles.secondaryText,
-          variant === 'danger' && styles.dangerText,
-          disabled && styles.disabledText,
+          styles.button,
+          variant === "primary" && styles.primaryButton,
+          variant === "secondary" && styles.secondaryButton,
+          variant === "danger" && styles.dangerButton,
+          disabled && styles.disabledButton,
+          style,
         ]}
+        onPress={onPress}
+        disabled={disabled}
+        activeOpacity={0.7}
       >
-        {title}
-      </Text>
-    </TouchableOpacity>
-  );
-});
+        <Text
+          style={[
+            styles.text,
+            variant === "primary" && styles.primaryText,
+            variant === "secondary" && styles.secondaryText,
+            variant === "danger" && styles.dangerText,
+            disabled && styles.disabledText,
+          ]}
+        >
+          {title}
+        </Text>
+      </TouchableOpacity>
+    );
+  },
+);
 
-Button.displayName = 'Button';
+Button.displayName = "Button";
 
 const styles = StyleSheet.create({
   button: {
     paddingVertical: 14,
     paddingHorizontal: 28,
     borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     minWidth: 120,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    ...Platform.select({
+      web: {
+        cursor: "pointer",
+        userSelect: "none",
+        transition: "transform 0.1s ease, opacity 0.1s ease",
+      },
+    }),
   },
   primaryButton: {
-    backgroundColor: '#4A90E2',
+    backgroundColor: "#4A90E2",
   },
   secondaryButton: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: "#F5F5F5",
     borderWidth: 1,
-    borderColor: '#DDD',
+    borderColor: "#DDD",
   },
   dangerButton: {
-    backgroundColor: '#E74C3C',
+    backgroundColor: "#E74C3C",
   },
   disabledButton: {
-    backgroundColor: '#CCC',
+    backgroundColor: "#CCC",
   },
   text: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   primaryText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
   },
   secondaryText: {
-    color: '#333',
+    color: "#333",
   },
   dangerText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
   },
   disabledText: {
-    color: '#999',
+    color: "#999",
   },
 });

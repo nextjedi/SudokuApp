@@ -1,0 +1,86 @@
+# Android Fastlane Configuration
+# This file contains the fastlane.tools configuration
+
+default_platform(:android)
+
+platform :android do
+
+  # ============================================
+  # LANES FOR BUILDING
+  # ============================================
+
+  desc "Build Android app for alpha testing"
+  lane :build_alpha do
+    gradle(
+      task: "clean assembleRelease"
+    )
+  end
+
+  desc "Build Android app bundle (AAB) for beta testing"
+  lane :build_beta do
+    gradle(
+      task: "clean bundleRelease"
+    )
+  end
+
+  desc "Build Android app bundle (AAB) for production"
+  lane :build_production do
+    gradle(
+      task: "clean bundleRelease"
+    )
+  end
+
+  # ============================================
+  # LANES FOR DEPLOYMENT
+  # ============================================
+
+  desc "Deploy to Google Play Internal Testing Track"
+  lane :deploy_alpha do
+    build_alpha
+    upload_to_play_store(
+      track: 'internal',
+      release_status: 'completed',
+      apk: 'app/build/outputs/apk/release/app-release.apk',
+      json_key_data: ENV['PLAY_STORE_JSON_KEY']
+    )
+  end
+
+  desc "Deploy to Google Play Beta Track"
+  lane :deploy_beta do
+    build_beta
+    upload_to_play_store(
+      track: 'beta',
+      release_status: 'completed',
+      aab: 'app/build/outputs/bundle/release/app-release.aab',
+      json_key_data: ENV['PLAY_STORE_JSON_KEY']
+    )
+  end
+
+  desc "Deploy to Google Play Production"
+  lane :deploy_production do
+    build_production
+    upload_to_play_store(
+      track: 'production',
+      release_status: 'completed',
+      aab: 'app/build/outputs/bundle/release/app-release.aab',
+      json_key_data: ENV['PLAY_STORE_JSON_KEY']
+    )
+  end
+
+  # ============================================
+  # UTILITY LANES
+  # ============================================
+
+  desc "Run tests"
+  lane :test do
+    gradle(task: "test")
+  end
+
+  desc "Increment version code"
+  lane :bump_version do
+    increment_version_code(
+      gradle_file_path: "app/build.gradle"
+    )
+  end
+
+end
