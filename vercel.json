@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm install --legacy-peer-deps",
   "buildCommand": "npx expo export --platform web",
   "outputDirectory": "dist",
   "framework": null,

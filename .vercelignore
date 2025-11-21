@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Build outputs (Vercel will build fresh)
+dist/
+web-build/
+android/
+ios/
+.expo/
+
+# Git
+.git/
+
+# IDE
+.idea/
+.vscode/
+
+# Debug
+*.log
+npm-debug.*
+
+# Test
+coverage/
+__tests__/
+
+# Misc
+*.md
+*.pdf
+*.png
+*.jpg
+!assets/*.png
+!assets/favicon.png
+docs/
+articles/
