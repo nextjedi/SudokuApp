@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   SafeAreaView,
-  Alert,
   ScrollView,
-} from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../store/store';
+  Platform,
+} from "react-native";
+import { showConfirmation, showNotification } from "../utils/alertHelper";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store/store";
 import {
   setGrid,
   selectCell,
@@ -17,7 +18,7 @@ import {
   updateElapsedTime,
   completeGame,
   incrementMistakes,
-} from '../slices/gameSlice';
+} from "../slices/gameSlice";
 import {
   incrementGamesPlayed,
   incrementGamesWon,
@@ -25,21 +26,17 @@ import {
   updateBestTime,
   updateStreak,
   setLastPlayedDate,
-} from '../slices/statsSlice';
-import { Grid } from '../components/Grid';
-import { NumberPad } from '../components/NumberPad';
-import { Timer } from '../components/Timer';
-import { Button } from '../components/Button';
+} from "../slices/statsSlice";
+import { Grid } from "../components/Grid";
+import { NumberPad } from "../components/NumberPad";
+import { Timer } from "../components/Timer";
+import { Button } from "../components/Button";
 import {
   createPuzzle,
   isPuzzleComplete,
   isValidMoveInGrid,
-} from '../utils/sudokuGenerator';
-import {
-  getTodayString,
-  isSameDay,
-  isConsecutiveDay,
-} from '../utils/helpers';
+} from "../utils/sudokuGenerator";
+import { getTodayString, isSameDay, isConsecutiveDay } from "../utils/helpers";
 
 interface GameScreenProps {
   onExit: () => void;
@@ -50,7 +47,9 @@ export const GameScreen: React.FC<GameScreenProps> = ({ onExit }) => {
   const game = useSelector((state: RootState) => state.game);
   const stats = useSelector((state: RootState) => state.stats);
   const settings = useSelector((state: RootState) => state.settings);
-  const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
+  const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(
+    null,
+  );
 
   useEffect(() => {
     // Start new game
@@ -66,7 +65,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ onExit }) => {
     } else if (isConsecutiveDay(stats.lastPlayedDate, today)) {
       // Consecutive day, increment streak
       dispatch(updateStreak(stats.currentStreak + 1));
-    } else if (stats.lastPlayedDate === '') {
+    } else if (stats.lastPlayedDate === "") {
       // First time playing
       dispatch(updateStreak(1));
     } else {
@@ -97,6 +96,51 @@ export const GameScreen: React.FC<GameScreenProps> = ({ onExit }) => {
     }
   }, [game.grid]);
 
+  // Keyboard support for web
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Number keys 1-9
+      if (e.key >= "1" && e.key <= "9") {
+        handleNumberPress(parseInt(e.key, 10));
+      }
+      // Delete/Backspace to erase
+      else if (e.key === "Backspace" || e.key === "Delete") {
+        handleErase();
+      }
+      // Arrow keys for navigation
+      else if (e.key.startsWith("Arrow") && game.selectedCell) {
+        e.preventDefault();
+        const { row, col } = game.selectedCell;
+        let newRow = row;
+        let newCol = col;
+
+        switch (e.key) {
+          case "ArrowUp":
+            newRow = Math.max(0, row - 1);
+            break;
+          case "ArrowDown":
+            newRow = Math.min(8, row + 1);
+            break;
+          case "ArrowLeft":
+            newCol = Math.max(0, col - 1);
+            break;
+          case "ArrowRight":
+            newCol = Math.min(8, col + 1);
+            break;
+        }
+
+        if (newRow !== row || newCol !== col) {
+          dispatch(selectCell({ row: newRow, col: newCol }));
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [game.selectedCell, game.isCompleted]);
+
   const handleGameComplete = () => {
     if (game.isCompleted) return; // Prevent multiple completions
 
@@ -107,13 +151,15 @@ export const GameScreen: React.FC<GameScreenProps> = ({ onExit }) => {
 
     dispatch(incrementGamesWon());
     dispatch(addToTotalTime(game.elapsedTime));
-    dispatch(updateBestTime({ difficulty: game.difficulty, time: game.elapsedTime }));
+    dispatch(
+      updateBestTime({ difficulty: game.difficulty, time: game.elapsedTime }),
+    );
 
     setTimeout(() => {
-      Alert.alert(
-        'Congratulations! 🎉',
-        `You completed the puzzle in ${Math.floor(game.elapsedTime / 60)}:${(game.elapsedTime % 60).toString().padStart(2, '0')}!`,
-        [{ text: 'OK', onPress: onExit }]
+      showNotification(
+        "Congratulations! 🎉",
+        `You completed the puzzle in ${Math.floor(game.elapsedTime / 60)}:${(game.elapsedTime % 60).toString().padStart(2, "0")}!`,
+        onExit,
       );
     }, 500);
   };
@@ -135,14 +181,13 @@ export const GameScreen: React.FC<GameScreenProps> = ({ onExit }) => {
     if (num !== 0 && !isValidMoveInGrid(game.grid, row, col, num)) {
       dispatch(incrementMistakes());
       if (game.mistakes + 1 >= game.maxMistakes) {
-        Alert.alert(
-          'Game Over',
-          'You made too many mistakes!',
-          [{ text: 'OK', onPress: onExit }]
-        );
+        showNotification("Game Over", "You made too many mistakes!", onExit);
         return;
       } else {
-        Alert.alert('Invalid Move', 'This number conflicts with the rules!');
+        showNotification(
+          "Invalid Move",
+          "This number conflicts with the rules!",
+        );
         return;
       }
     }
@@ -162,45 +207,37 @@ export const GameScreen: React.FC<GameScreenProps> = ({ onExit }) => {
   };
 
   const handleNewGame = () => {
-    Alert.alert(
-      'New Game',
-      'Are you sure you want to start a new game? Current progress will be lost.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'New Game',
-          onPress: () => {
-            if (timerInterval) clearInterval(timerInterval);
-            const puzzle = createPuzzle(game.difficulty);
-            dispatch(setGrid(puzzle));
-            dispatch(startGame());
-            dispatch(incrementGamesPlayed());
+    showConfirmation(
+      "New Game",
+      "Are you sure you want to start a new game? Current progress will be lost.",
+      () => {
+        if (timerInterval) clearInterval(timerInterval);
+        const puzzle = createPuzzle(game.difficulty);
+        dispatch(setGrid(puzzle));
+        dispatch(startGame());
+        dispatch(incrementGamesPlayed());
 
-            const interval = setInterval(() => {
-              const elapsed = Math.floor((Date.now() - Date.now()) / 1000);
-              dispatch(updateElapsedTime(elapsed));
-            }, 1000);
-            setTimerInterval(interval);
-          },
-        },
-      ]
+        const interval = setInterval(() => {
+          const elapsed = Math.floor((Date.now() - Date.now()) / 1000);
+          dispatch(updateElapsedTime(elapsed));
+        }, 1000);
+        setTimerInterval(interval);
+      },
+      undefined,
+      "New Game",
     );
   };
 
   const handleExit = () => {
-    Alert.alert(
-      'Exit Game',
-      'Are you sure you want to exit? Current progress will be lost.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Exit',
-          onPress: () => {
-            if (timerInterval) clearInterval(timerInterval);
-            onExit();
-          },
-        },
-      ]
+    showConfirmation(
+      "Exit Game",
+      "Are you sure you want to exit? Current progress will be lost.",
+      () => {
+        if (timerInterval) clearInterval(timerInterval);
+        onExit();
+      },
+      undefined,
+      "Exit",
     );
   };
 
@@ -210,7 +247,8 @@ export const GameScreen: React.FC<GameScreenProps> = ({ onExit }) => {
         <View style={styles.header}>
           <View style={styles.headerInfo}>
             <Text style={styles.difficulty}>
-              {game.difficulty.charAt(0).toUpperCase() + game.difficulty.slice(1)}
+              {game.difficulty.charAt(0).toUpperCase() +
+                game.difficulty.slice(1)}
             </Text>
             <Text style={styles.mistakes}>
               ❌ {game.mistakes}/{game.maxMistakes}
@@ -258,7 +296,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ onExit }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: "#F8F9FA",
   },
   scrollContent: {
     flexGrow: 1,
@@ -269,30 +307,30 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   headerInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 12,
   },
   difficulty: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#2C3E50',
+    fontWeight: "700",
+    color: "#2C3E50",
   },
   mistakes: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#E74C3C',
+    fontWeight: "600",
+    color: "#E74C3C",
   },
   gridContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
   },
   controls: {
     marginBottom: 20,
   },
   actions: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 24,
     gap: 12,
   },
