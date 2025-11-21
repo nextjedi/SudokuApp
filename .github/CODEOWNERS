@@ -1,0 +1,18 @@
+# CODEOWNERS
+# This file defines individuals or teams responsible for code in this repository.
+# Code owners are automatically requested for review when someone opens a pull request.
+#
+# More info: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything in the repo
+* @nextjedi
+
+# Workflow files - critical infrastructure
+/.github/workflows/ @nextjedi
+
+# Build configurations
+/android/ @nextjedi
+/ios/ @nextjedi
+
+# Core source code
+/src/ @nextjedi
