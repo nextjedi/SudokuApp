@@ -30,5 +30,6 @@ __tests__/
 *.jpg
 !assets/*.png
 !assets/favicon.png
+!public/*
 docs/
 articles/
