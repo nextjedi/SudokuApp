@@ -1,0 +1,5 @@
+# Android Appfile
+# This file contains the configuration for Fastlane
+
+json_key_data(ENV['PLAY_STORE_JSON_KEY'])
+package_name("com.sudokustreak.app") # Replace with your actual package name

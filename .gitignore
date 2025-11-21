@@ -79,20 +79,33 @@ coverage
 # Expo Router Cache
 .expo/
 
-# CI/CD
-.eas/
+# CI/CD & Build Artifacts
 *.aab
 *.apk
 *.ipa
 build/
 android/app/build/
+android/app/release.keystore
+android/keystore.properties
 ios/build/
+ios/*.ipa
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+fastlane/.env
 
 # Environment secrets (never commit!)
 google-services.json
 GoogleService-Info.plist
 .env.production
 .env.staging
+*.mobileprovision
+*.p12
+*.cer
 
-# EAS credentials
-credentials.json
+# Match certificates (stored in separate private repo)
+certs/
+profiles/
