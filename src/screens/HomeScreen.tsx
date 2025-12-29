@@ -1,15 +1,10 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-} from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../store/store';
-import { setDifficulty } from '../slices/gameSlice';
-import { Button } from '../components/Button';
+import React from "react";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store/store";
+import { setDifficulty } from "../slices/gameSlice";
+import { Button } from "../components/Button";
 
 interface HomeScreenProps {
   onNewGame: () => void;
@@ -26,9 +21,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 }) => {
   const dispatch = useDispatch();
   const difficulty = useSelector((state: RootState) => state.game.difficulty);
-  const currentStreak = useSelector((state: RootState) => state.stats.currentStreak);
+  const currentStreak = useSelector(
+    (state: RootState) => state.stats.currentStreak,
+  );
 
-  const handleDifficultySelect = (level: 'easy' | 'medium' | 'hard') => {
+  const handleDifficultySelect = (level: "easy" | "medium" | "hard") => {
     dispatch(setDifficulty(level));
   };
 
@@ -52,64 +49,68 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <TouchableOpacity
               style={[
                 styles.difficultyButton,
-                difficulty === 'easy' && styles.selectedDifficulty,
+                difficulty === "easy" && styles.selectedDifficulty,
               ]}
-              onPress={() => handleDifficultySelect('easy')}
+              onPress={() => handleDifficultySelect("easy")}
               activeOpacity={0.7}
             >
               <Text
                 style={[
                   styles.difficultyText,
-                  difficulty === 'easy' && styles.selectedDifficultyText,
+                  difficulty === "easy" && styles.selectedDifficultyText,
                 ]}
               >
                 Easy
               </Text>
-              <Text style={styles.difficultySubtext}>35 clues</Text>
+              <Text style={styles.difficultySubtext}>46 clues</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[
                 styles.difficultyButton,
-                difficulty === 'medium' && styles.selectedDifficulty,
+                difficulty === "medium" && styles.selectedDifficulty,
               ]}
-              onPress={() => handleDifficultySelect('medium')}
+              onPress={() => handleDifficultySelect("medium")}
               activeOpacity={0.7}
             >
               <Text
                 style={[
                   styles.difficultyText,
-                  difficulty === 'medium' && styles.selectedDifficultyText,
+                  difficulty === "medium" && styles.selectedDifficultyText,
                 ]}
               >
                 Medium
               </Text>
-              <Text style={styles.difficultySubtext}>45 clues</Text>
+              <Text style={styles.difficultySubtext}>36 clues</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[
                 styles.difficultyButton,
-                difficulty === 'hard' && styles.selectedDifficulty,
+                difficulty === "hard" && styles.selectedDifficulty,
               ]}
-              onPress={() => handleDifficultySelect('hard')}
+              onPress={() => handleDifficultySelect("hard")}
               activeOpacity={0.7}
             >
               <Text
                 style={[
                   styles.difficultyText,
-                  difficulty === 'hard' && styles.selectedDifficultyText,
+                  difficulty === "hard" && styles.selectedDifficultyText,
                 ]}
               >
                 Hard
               </Text>
-              <Text style={styles.difficultySubtext}>55 clues</Text>
+              <Text style={styles.difficultySubtext}>26 clues</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={styles.actionsSection}>
-          <Button title="New Game" onPress={onNewGame} style={styles.newGameButton} />
+          <Button
+            title="New Game"
+            onPress={onNewGame}
+            style={styles.newGameButton}
+          />
           <View style={styles.secondaryButtons}>
             <Button
               title="Statistics"
@@ -141,32 +142,32 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: "#F8F9FA",
   },
   content: {
     flex: 1,
     paddingHorizontal: 24,
-    justifyContent: 'space-around',
+    justifyContent: "space-around",
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 40,
   },
   title: {
     fontSize: 48,
-    fontWeight: '700',
-    color: '#2C3E50',
+    fontWeight: "700",
+    color: "#2C3E50",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 18,
-    color: '#7F8C8D',
+    color: "#7F8C8D",
     marginBottom: 16,
   },
   streakContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF3E0',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFF3E0",
     paddingVertical: 8,
     paddingHorizontal: 20,
     borderRadius: 20,
@@ -178,62 +179,62 @@ const styles = StyleSheet.create({
   },
   streakText: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#F57C00',
+    fontWeight: "600",
+    color: "#F57C00",
   },
   difficultySection: {
     marginVertical: 20,
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '600',
-    color: '#2C3E50',
+    fontWeight: "600",
+    color: "#2C3E50",
     marginBottom: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   difficultyButtons: {
     gap: 12,
   },
   difficultyButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     paddingVertical: 20,
     paddingHorizontal: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#E0E0E0',
-    alignItems: 'center',
+    borderColor: "#E0E0E0",
+    alignItems: "center",
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
   selectedDifficulty: {
-    borderColor: '#4A90E2',
-    backgroundColor: '#E3F2FD',
+    borderColor: "#4A90E2",
+    backgroundColor: "#E3F2FD",
   },
   difficultyText: {
     fontSize: 20,
-    fontWeight: '600',
-    color: '#2C3E50',
+    fontWeight: "600",
+    color: "#2C3E50",
   },
   selectedDifficultyText: {
-    color: '#4A90E2',
+    color: "#4A90E2",
   },
   difficultySubtext: {
     fontSize: 14,
-    color: '#7F8C8D',
+    color: "#7F8C8D",
     marginTop: 4,
   },
   actionsSection: {
     marginBottom: 40,
   },
   newGameButton: {
-    width: '100%',
+    width: "100%",
     marginBottom: 16,
   },
   secondaryButtons: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
   },
   secondaryButton: {

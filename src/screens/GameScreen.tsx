@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  Platform,
-} from "react-native";
+import { View, Text, StyleSheet, ScrollView, Platform } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { showConfirmation, showNotification } from "../utils/alertHelper";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store/store";
@@ -52,29 +46,31 @@ export const GameScreen: React.FC<GameScreenProps> = ({ onExit }) => {
   );
 
   useEffect(() => {
-    // Start new game
     const puzzle = createPuzzle(game.difficulty);
     dispatch(setGrid(puzzle));
     dispatch(startGame());
     dispatch(incrementGamesPlayed());
 
-    // Update streak
+    // ---- streak logic ----
     const today = getTodayString();
+
     if (isSameDay(stats.lastPlayedDate, today)) {
-      // Already played today, keep streak
+      // same-day: keep streak
     } else if (isConsecutiveDay(stats.lastPlayedDate, today)) {
-      // Consecutive day, increment streak
       dispatch(updateStreak(stats.currentStreak + 1));
-    } else if (stats.lastPlayedDate === "") {
-      // First time playing
-      dispatch(updateStreak(1));
     } else {
-      // Streak broken
       dispatch(updateStreak(1));
     }
     dispatch(setLastPlayedDate(today));
 
-    // Start timer
+    return () => {
+      if (timerInterval) clearInterval(timerInterval);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!game.startTime) return;
+
     const interval = setInterval(() => {
       if (!game.isCompleted) {
         const elapsed = Math.floor((Date.now() - game.startTime) / 1000);
@@ -83,36 +79,27 @@ export const GameScreen: React.FC<GameScreenProps> = ({ onExit }) => {
     }, 1000);
 
     setTimerInterval(interval);
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, []); // Empty dependency - only run on mount
+    return () => clearInterval(interval);
+  }, [game.startTime, game.isCompleted]);
 
   useEffect(() => {
-    // Check for completion when grid changes
     if (game.grid.length > 0 && isPuzzleComplete(game.grid)) {
       handleGameComplete();
     }
   }, [game.grid]);
 
-  // Keyboard support for web
   useEffect(() => {
     if (Platform.OS !== "web") return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Number keys 1-9
       if (e.key >= "1" && e.key <= "9") {
         handleNumberPress(parseInt(e.key, 10));
-      }
-      // Delete/Backspace to erase
-      else if (e.key === "Backspace" || e.key === "Delete") {
+      } else if (e.key === "Backspace" || e.key === "Delete") {
         handleErase();
-      }
-      // Arrow keys for navigation
-      else if (e.key.startsWith("Arrow") && game.selectedCell) {
+      } else if (e.key.startsWith("Arrow") && game.selectedCell) {
         e.preventDefault();
         const { row, col } = game.selectedCell;
+
         let newRow = row;
         let newCol = col;
 
@@ -142,12 +129,10 @@ export const GameScreen: React.FC<GameScreenProps> = ({ onExit }) => {
   }, [game.selectedCell, game.isCompleted]);
 
   const handleGameComplete = () => {
-    if (game.isCompleted) return; // Prevent multiple completions
+    if (game.isCompleted) return;
 
     dispatch(completeGame());
-    if (timerInterval) {
-      clearInterval(timerInterval);
-    }
+    if (timerInterval) clearInterval(timerInterval);
 
     dispatch(incrementGamesWon());
     dispatch(addToTotalTime(game.elapsedTime));
@@ -158,7 +143,11 @@ export const GameScreen: React.FC<GameScreenProps> = ({ onExit }) => {
     setTimeout(() => {
       showNotification(
         "Congratulations! 🎉",
-        `You completed the puzzle in ${Math.floor(game.elapsedTime / 60)}:${(game.elapsedTime % 60).toString().padStart(2, "0")}!`,
+        `You completed the puzzle in ${Math.floor(game.elapsedTime / 60)}:${(
+          game.elapsedTime % 60
+        )
+          .toString()
+          .padStart(2, "0")}!`,
         onExit,
       );
     }, 500);
@@ -175,21 +164,20 @@ export const GameScreen: React.FC<GameScreenProps> = ({ onExit }) => {
     const { row, col } = game.selectedCell;
     const cell = game.grid[row][col];
 
-    if (cell.isInitial) return; // Can't change initial cells
+    if (cell.isInitial) return;
 
-    // Check if move is valid
     if (num !== 0 && !isValidMoveInGrid(game.grid, row, col, num)) {
       dispatch(incrementMistakes());
       if (game.mistakes + 1 >= game.maxMistakes) {
-        showNotification("Game Over", "You made too many mistakes!", onExit);
+        showNotification("Game Over", "Too many mistakes!", onExit);
         return;
       } else {
         showNotification(
           "Invalid Move",
-          "This number conflicts with the rules!",
+          "This number conflicts with Sudoku rules!",
         );
-        return;
       }
+      return;
     }
 
     dispatch(setCellValue({ row, col, value: num }));
@@ -209,38 +197,27 @@ export const GameScreen: React.FC<GameScreenProps> = ({ onExit }) => {
   const handleNewGame = () => {
     showConfirmation(
       "New Game",
-      "Are you sure you want to start a new game? Current progress will be lost.",
+      "Start a new game? Current progress will be lost.",
       () => {
         if (timerInterval) clearInterval(timerInterval);
         const puzzle = createPuzzle(game.difficulty);
         dispatch(setGrid(puzzle));
-        dispatch(startGame());
+        dispatch(startGame()); // new startTime triggers timer
         dispatch(incrementGamesPlayed());
-
-        const interval = setInterval(() => {
-          const elapsed = Math.floor((Date.now() - Date.now()) / 1000);
-          dispatch(updateElapsedTime(elapsed));
-        }, 1000);
-        setTimerInterval(interval);
       },
-      undefined,
-      "New Game",
     );
   };
 
   const handleExit = () => {
-    showConfirmation(
-      "Exit Game",
-      "Are you sure you want to exit? Current progress will be lost.",
-      () => {
-        if (timerInterval) clearInterval(timerInterval);
-        onExit();
-      },
-      undefined,
-      "Exit",
-    );
+    showConfirmation("Exit Game", "Exit the current game?", () => {
+      if (timerInterval) clearInterval(timerInterval);
+      onExit();
+    });
   };
 
+  // ---------------------------------------------------------
+  //  UI RENDER
+  // ---------------------------------------------------------
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -254,6 +231,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ onExit }) => {
               ❌ {game.mistakes}/{game.maxMistakes}
             </Text>
           </View>
+
           {settings.timerEnabled && <Timer seconds={game.elapsedTime} />}
         </View>
 
