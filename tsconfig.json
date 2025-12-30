@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "es6"
-    ],
+    "lib": ["dom", "dom.iterable", "es6"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -18,12 +14,7 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": [
-    "src/**/*",
-    "App.tsx"
-  ],
-  "exclude": [
-    "node_modules"
-  ],
+  "include": ["src/**/*", "App.tsx"],
+  "exclude": ["node_modules"],
   "extends": "expo/tsconfig.base"
 }
