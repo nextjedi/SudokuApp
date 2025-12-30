@@ -164,7 +164,7 @@ SudokuApp/
 ### Sudoku Engine
 
 - Valid puzzle generation with backtracking algorithm
-- Three difficulty levels: Easy (ues), Medium (45 clues), Hard (55 clues)
+- Three difficulty levels: Easy (35 clues), Medium (45 clues), Hard (55 clues)
 - Real-time move validation
 - Automatic puzzle completion detection
 - Mistake tracking (max 3 mistakes)
