@@ -1,0 +1,49 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Build outputs
+dist
+.expo
+.expo-shared
+web-build
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+*.md
+docs/
+articles/
+
+# CI/CD
+.github
+
+# Android/iOS specific
+android
+ios
+*.keystore
+keystore.properties
+
+# Test
+coverage
+*.test.ts
+*.test.tsx
+__tests__
+
+# Temporary files
+*.log
+.vercel
+.husky

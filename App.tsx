@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Platform } from 'react-native';
 import { Provider } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { store } from './src/store/store';
@@ -83,8 +84,31 @@ function AppContent() {
     }
   };
 
-  return renderScreen();
+  return (
+    <View style={styles.webContainer}>
+      <View style={styles.mobileContainer}>
+        {renderScreen()}
+      </View>
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  webContainer: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mobileContainer: {
+    flex: 1,
+    width: Platform.OS === 'web' ? '80%' : '100%',
+    backgroundColor: '#fff',
+    ...(Platform.OS === 'web' && {
+      boxShadow: '0 0 20px rgba(0,0,0,0.1)',
+    }),
+  },
+});
 
 export default function App() {
   return (
