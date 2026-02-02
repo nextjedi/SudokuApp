@@ -1,4 +1,4 @@
-import { SudokuGrid } from '../types';
+import { SudokuGrid } from "../types";
 
 /**
  * Creates an empty 9x9 Sudoku grid
@@ -13,6 +13,7 @@ export const createEmptyGrid = (): SudokuGrid => {
         isInitial: false,
         isSelected: false,
         notes: [],
+        isSolverFilled: false,
       };
     }
   }
@@ -26,7 +27,7 @@ export const isValidMove = (
   grid: number[][],
   row: number,
   col: number,
-  num: number
+  num: number,
 ): boolean => {
   // Check row
   for (let x = 0; x < 9; x++) {
@@ -119,7 +120,9 @@ const shuffleArray = <T>(array: T[]): void => {
 /**
  * Removes numbers from a complete grid based on difficulty
  */
-export const createPuzzle = (difficulty: 'easy' | 'medium' | 'hard'): SudokuGrid => {
+export const createPuzzle = (
+  difficulty: "easy" | "medium" | "hard",
+): SudokuGrid => {
   const completeGrid = generateCompleteGrid();
 
   // Number of cells to remove based on difficulty
@@ -167,7 +170,7 @@ export const isPuzzleComplete = (grid: SudokuGrid): boolean => {
   }
 
   // Then check if the solution is valid
-  const numGrid = grid.map(row => row.map(cell => cell.value));
+  const numGrid = grid.map((row) => row.map((cell) => cell.value));
 
   // Check all rows
   for (let i = 0; i < 9; i++) {
@@ -211,8 +214,8 @@ export const isValidMoveInGrid = (
   grid: SudokuGrid,
   row: number,
   col: number,
-  num: number
+  num: number,
 ): boolean => {
-  const numGrid = grid.map(row => row.map(cell => cell.value));
+  const numGrid = grid.map((row) => row.map((cell) => cell.value));
   return isValidMove(numGrid, row, col, num);
 };

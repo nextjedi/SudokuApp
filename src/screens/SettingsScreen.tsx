@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
@@ -8,17 +8,19 @@ import {
   Switch,
   TouchableOpacity,
   Alert,
-} from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../store/store';
+} from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store/store";
 import {
   toggleSound,
   toggleHighlight,
   toggleTimer,
   toggleDarkMode,
-} from '../slices/settingsSlice';
-import { resetStats } from '../slices/statsSlice';
-import { Button } from '../components/Button';
+  setSolverSpeed,
+  setSolverHelpCells,
+} from "../slices/settingsSlice";
+import { resetStats } from "../slices/statsSlice";
+import { Button } from "../components/Button";
 
 interface SettingsScreenProps {
   onBack: () => void;
@@ -30,19 +32,19 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
 
   const handleResetStats = () => {
     Alert.alert(
-      'Reset Statistics',
-      'Are you sure you want to reset all statistics? This action cannot be undone.',
+      "Reset Statistics",
+      "Are you sure you want to reset all statistics? This action cannot be undone.",
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: "Cancel", style: "cancel" },
         {
-          text: 'Reset',
-          style: 'destructive',
+          text: "Reset",
+          style: "destructive",
           onPress: () => {
             dispatch(resetStats());
-            Alert.alert('Success', 'Statistics have been reset.');
+            Alert.alert("Success", "Statistics have been reset.");
           },
         },
-      ]
+      ],
     );
   };
 
@@ -66,8 +68,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
             </View>
             <Switch
               value={settings.soundEnabled}
-              onValueChange={() => { void dispatch(toggleSound()); }}
-              trackColor={{ false: '#D1D1D6', true: '#4A90E2' }}
+              onValueChange={() => {
+                void dispatch(toggleSound());
+              }}
+              trackColor={{ false: "#D1D1D6", true: "#4A90E2" }}
               thumbColor="#FFFFFF"
             />
           </View>
@@ -81,8 +85,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
             </View>
             <Switch
               value={settings.highlightEnabled}
-              onValueChange={() => { void dispatch(toggleHighlight()); }}
-              trackColor={{ false: '#D1D1D6', true: '#4A90E2' }}
+              onValueChange={() => {
+                void dispatch(toggleHighlight());
+              }}
+              trackColor={{ false: "#D1D1D6", true: "#4A90E2" }}
               thumbColor="#FFFFFF"
             />
           </View>
@@ -90,16 +96,125 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
           <View style={styles.settingItem}>
             <View style={styles.settingInfo}>
               <Text style={styles.settingLabel}>Show Timer</Text>
-              <Text style={styles.settingDescription}>
-                Display game timer
-              </Text>
+              <Text style={styles.settingDescription}>Display game timer</Text>
             </View>
             <Switch
               value={settings.timerEnabled}
-              onValueChange={() => { void dispatch(toggleTimer()); }}
-              trackColor={{ false: '#D1D1D6', true: '#4A90E2' }}
+              onValueChange={() => {
+                void dispatch(toggleTimer());
+              }}
+              trackColor={{ false: "#D1D1D6", true: "#4A90E2" }}
               thumbColor="#FFFFFF"
             />
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Solver Settings</Text>
+
+          <View style={styles.settingItem}>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>Solver Speed</Text>
+              <Text style={styles.settingDescription}>
+                Delay between solver steps
+              </Text>
+            </View>
+            <View style={styles.presetContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.presetButton,
+                  settings.solverSpeed === 500 && styles.presetButtonActive,
+                ]}
+                onPress={() => dispatch(setSolverSpeed(500))}
+              >
+                <Text
+                  style={[
+                    styles.presetButtonText,
+                    settings.solverSpeed === 500 &&
+                      styles.presetButtonTextActive,
+                  ]}
+                >
+                  0.5s
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.presetButton,
+                  settings.solverSpeed === 1000 && styles.presetButtonActive,
+                ]}
+                onPress={() => dispatch(setSolverSpeed(1000))}
+              >
+                <Text
+                  style={[
+                    styles.presetButtonText,
+                    settings.solverSpeed === 1000 &&
+                      styles.presetButtonTextActive,
+                  ]}
+                >
+                  1s
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.presetButton,
+                  settings.solverSpeed === 2000 && styles.presetButtonActive,
+                ]}
+                onPress={() => dispatch(setSolverSpeed(2000))}
+              >
+                <Text
+                  style={[
+                    styles.presetButtonText,
+                    settings.solverSpeed === 2000 &&
+                      styles.presetButtonTextActive,
+                  ]}
+                >
+                  2s
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.settingItem}>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>Help Cells</Text>
+              <Text style={styles.settingDescription}>
+                Number of cells to solve: {settings.solverHelpCells}
+              </Text>
+            </View>
+            <View style={styles.sliderContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.sliderButton,
+                  settings.solverHelpCells <= 1 && styles.sliderButtonDisabled,
+                ]}
+                onPress={() =>
+                  dispatch(
+                    setSolverHelpCells(
+                      Math.max(1, settings.solverHelpCells - 1),
+                    ),
+                  )
+                }
+                disabled={settings.solverHelpCells <= 1}
+              >
+                <Text style={styles.sliderButtonText}>-</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.sliderButton,
+                  settings.solverHelpCells >= 9 && styles.sliderButtonDisabled,
+                ]}
+                onPress={() =>
+                  dispatch(
+                    setSolverHelpCells(
+                      Math.min(9, settings.solverHelpCells + 1),
+                    ),
+                  )
+                }
+                disabled={settings.solverHelpCells >= 9}
+              >
+                <Text style={styles.sliderButtonText}>+</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 
@@ -115,8 +230,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
             </View>
             <Switch
               value={settings.darkMode}
-              onValueChange={() => { void dispatch(toggleDarkMode()); }}
-              trackColor={{ false: '#D1D1D6', true: '#4A90E2' }}
+              onValueChange={() => {
+                void dispatch(toggleDarkMode());
+              }}
+              trackColor={{ false: "#D1D1D6", true: "#4A90E2" }}
               thumbColor="#FFFFFF"
               disabled={true}
             />
@@ -153,7 +270,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: "#F8F9FA",
   },
   content: {
     flexGrow: 1,
@@ -161,38 +278,38 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 32,
   },
   title: {
     fontSize: 36,
-    fontWeight: '700',
-    color: '#2C3E50',
+    fontWeight: "700",
+    color: "#2C3E50",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#7F8C8D',
+    color: "#7F8C8D",
   },
   section: {
     marginBottom: 32,
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '600',
-    color: '#2C3E50',
+    fontWeight: "600",
+    color: "#2C3E50",
     marginBottom: 16,
   },
   settingItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -203,44 +320,91 @@ const styles = StyleSheet.create({
   },
   settingLabel: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#2C3E50',
+    fontWeight: "600",
+    color: "#2C3E50",
     marginBottom: 4,
   },
   settingDescription: {
     fontSize: 14,
-    color: '#7F8C8D',
+    color: "#7F8C8D",
   },
   dangerButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     padding: 16,
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: "center",
     borderWidth: 2,
-    borderColor: '#E74C3C',
+    borderColor: "#E74C3C",
   },
   dangerButtonText: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#E74C3C',
+    fontWeight: "600",
+    color: "#E74C3C",
   },
   infoSection: {
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 24,
   },
   infoText: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#7F8C8D',
+    fontWeight: "600",
+    color: "#7F8C8D",
     marginBottom: 4,
   },
   infoSubtext: {
     fontSize: 12,
-    color: '#95A5A6',
-    textAlign: 'center',
+    color: "#95A5A6",
+    textAlign: "center",
+  },
+  sliderContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  sliderButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#4A90E2",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  sliderButtonDisabled: {
+    backgroundColor: "#D1D1D6",
+  },
+  sliderButtonText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  presetContainer: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  presetButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+    backgroundColor: "#F8F9FA",
+    borderWidth: 1,
+    borderColor: "#D1D1D6",
+    minWidth: 50,
+    alignItems: "center",
+  },
+  presetButtonActive: {
+    backgroundColor: "#4A90E2",
+    borderColor: "#4A90E2",
+  },
+  presetButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#2C3E50",
+  },
+  presetButtonTextActive: {
+    color: "#FFFFFF",
   },
   actions: {
-    marginTop: 'auto',
+    marginTop: "auto",
     paddingTop: 20,
   },
 });

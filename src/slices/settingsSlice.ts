@@ -1,5 +1,5 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { SettingsState } from '../types';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { SettingsState } from "../types";
 
 const initialState: SettingsState = {
   soundEnabled: true,
@@ -7,10 +7,12 @@ const initialState: SettingsState = {
   notesEnabled: true,
   timerEnabled: true,
   darkMode: false,
+  solverSpeed: 2000, // Default to 2 seconds
+  solverHelpCells: 3,
 };
 
 const settingsSlice = createSlice({
-  name: 'settings',
+  name: "settings",
   initialState,
   reducers: {
     toggleSound: (state) => {
@@ -28,6 +30,12 @@ const settingsSlice = createSlice({
     toggleDarkMode: (state) => {
       state.darkMode = !state.darkMode;
     },
+    setSolverSpeed: (state, action: PayloadAction<number>) => {
+      state.solverSpeed = action.payload;
+    },
+    setSolverHelpCells: (state, action: PayloadAction<number>) => {
+      state.solverHelpCells = action.payload;
+    },
     updateSettings: (state, action: PayloadAction<Partial<SettingsState>>) => {
       return { ...state, ...action.payload };
     },
@@ -40,6 +48,8 @@ export const {
   toggleNotes,
   toggleTimer,
   toggleDarkMode,
+  setSolverSpeed,
+  setSolverHelpCells,
   updateSettings,
 } = settingsSlice.actions;
 

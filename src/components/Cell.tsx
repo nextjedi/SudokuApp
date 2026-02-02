@@ -6,6 +6,7 @@ import {
   ViewStyle,
   Dimensions,
   Platform,
+  View,
 } from "react-native";
 import { SudokuCell as CellType } from "../types";
 
@@ -31,14 +32,41 @@ interface CellProps {
   col: number;
   isSelected: boolean;
   isHighlighted: boolean;
+  isSolverHint?: boolean;
+  isSolverFilling?: boolean;
+  reasoning?: string;
   onPress: (row: number, col: number) => void;
+  onHover?: (reasoning: string) => void;
 }
 
 export const Cell = React.memo<CellProps>(
-  ({ cell, row, col, isSelected, isHighlighted, onPress }) => {
+  ({
+    cell,
+    row,
+    col,
+    isSelected,
+    isHighlighted,
+    isSolverHint = false,
+    isSolverFilling = false,
+    reasoning,
+    onPress,
+    onHover,
+  }) => {
     const handlePress = useCallback(() => {
       onPress(row, col);
     }, [row, col, onPress]);
+
+    const handleMouseEnter = useCallback(() => {
+      if (reasoning && onHover) {
+        onHover(reasoning);
+      }
+    }, [reasoning, onHover]);
+
+    const handleMouseLeave = useCallback(() => {
+      if (onHover) {
+        onHover("");
+      }
+    }, [onHover]);
 
     const borderStyle = useMemo(
       (): ViewStyle => ({
@@ -50,28 +78,44 @@ export const Cell = React.memo<CellProps>(
       [row, col],
     );
 
+    const mouseEvents =
+      Platform.OS === "web"
+        ? {
+            onMouseEnter: handleMouseEnter,
+            onMouseLeave: handleMouseLeave,
+          }
+        : {};
+
     return (
-      <TouchableOpacity
+      <View
         style={[
           styles.cell,
           borderStyle,
           isSelected && styles.selectedCell,
           isHighlighted && !isSelected && styles.highlightedCell,
+          isSolverHint && styles.solverHintCell,
+          isSolverFilling && styles.solverFillingCell,
+          cell.isSolverFilled && styles.solverFilledCell,
           cell.isInitial && styles.initialCell,
         ]}
-        onPress={handlePress}
-        activeOpacity={0.6}
+        {...mouseEvents}
       >
-        <Text
-          style={[
-            styles.cellText,
-            cell.isInitial && styles.initialText,
-            cell.value === 0 && styles.emptyText,
-          ]}
+        <TouchableOpacity
+          style={styles.cellTouchable}
+          onPress={handlePress}
+          activeOpacity={0.6}
         >
-          {cell.value !== 0 ? cell.value : ""}
-        </Text>
-      </TouchableOpacity>
+          <Text
+            style={[
+              styles.cellText,
+              cell.isInitial && styles.initialText,
+              cell.value === 0 && styles.emptyText,
+            ]}
+          >
+            {cell.value !== 0 ? cell.value : ""}
+          </Text>
+        </TouchableOpacity>
+      </View>
     );
   },
   (prevProps, nextProps) => {
@@ -79,8 +123,12 @@ export const Cell = React.memo<CellProps>(
     return (
       prevProps.cell.value === nextProps.cell.value &&
       prevProps.cell.isInitial === nextProps.cell.isInitial &&
+      prevProps.cell.isSolverFilled === nextProps.cell.isSolverFilled &&
       prevProps.isSelected === nextProps.isSelected &&
-      prevProps.isHighlighted === nextProps.isHighlighted
+      prevProps.isHighlighted === nextProps.isHighlighted &&
+      prevProps.isSolverHint === nextProps.isSolverHint &&
+      prevProps.isSolverFilling === nextProps.isSolverFilling &&
+      prevProps.reasoning === nextProps.reasoning
     );
   },
 );
@@ -103,11 +151,26 @@ const styles = StyleSheet.create({
       },
     }),
   },
+  cellTouchable: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   selectedCell: {
     backgroundColor: "#BBE5F4",
   },
   highlightedCell: {
     backgroundColor: "#E8F4F8",
+  },
+  solverHintCell: {
+    backgroundColor: "#FFF3CD", // Light yellow for hint cells
+  },
+  solverFillingCell: {
+    backgroundColor: "#D4EDDA", // Light green for cell being filled
+  },
+  solverFilledCell: {
+    backgroundColor: "#E8F8F5", // Light teal for cells filled by solver
   },
   initialCell: {
     backgroundColor: "#F5F5F5",
