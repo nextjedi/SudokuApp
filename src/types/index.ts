@@ -8,17 +8,24 @@ export interface SudokuCell {
 
 export type SudokuGrid = SudokuCell[][];
 
+export type Difficulty = "easy" | "medium" | "hard";
+
+export type Position = {
+  row: number;
+  col: number;
+};
+
 export interface GameState {
   grid: SudokuGrid;
-  selectedCell: { row: number; col: number } | null;
-  difficulty: "easy" | "medium" | "hard";
+  selectedCell: Position | null;
+  difficulty: Difficulty;
   isCompleted: boolean;
   startTime: number;
   elapsedTime: number;
   mistakes: number;
   maxMistakes: number;
   isSolverActive: boolean;
-  solverHintCells: { row: number; col: number }[];
+  solverHintCells: Position[];
   solverFilledCells: number; // number of cells filled by solver
 }
 
@@ -33,6 +40,21 @@ export interface StatsState {
   };
   currentStreak: number;
   lastPlayedDate: string;
+}
+
+export interface SolverStep {
+  row: number;
+  col: number;
+  value: number;
+  strategy: string;
+  hintCells?: Position[];
+  reasoning: string;
+}
+
+export interface SolverStepDisplay {
+  cell: string;
+  reasoning: string;
+  step: number;
 }
 
 export interface SettingsState {
