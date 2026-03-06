@@ -1,0 +1,15 @@
+.gradle/
+build/
+*.class
+*.log
+local.properties
+.idea/
+*.iml
+.DS_Store
+/androidApp/src/main/res/raw/
+*.keystore
+!debug.keystore
+iosApp/Pods/
+iosApp/*.xcworkspace
+iosApp/iosApp.xcodeproj/xcuserdata/
+.kotlin/

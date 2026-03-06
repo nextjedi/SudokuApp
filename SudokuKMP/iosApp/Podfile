@@ -1,0 +1,7 @@
+platform :ios, '16.0'
+use_frameworks!
+
+target 'iosApp' do
+  # The KMP shared framework is added directly via Xcode, not CocoaPods.
+  # Add other pods here if needed in the future.
+end
