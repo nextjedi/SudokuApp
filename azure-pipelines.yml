@@ -68,3 +68,4 @@ extends:
     keystorePasswordVar: "sudoku-keystore-password"
     keyPasswordVar: "sudoku-key-password"
     provisioningProfile: "sudoku-appstore.mobileprovision"
+    buildXCFramework: false  # iOS app is pure Swift, doesn't consume KMP shared module

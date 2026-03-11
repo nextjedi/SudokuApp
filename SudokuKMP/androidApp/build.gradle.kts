@@ -16,9 +16,20 @@ android {
         versionName = "1.0"
     }
 
+    signingConfigs {
+        create("release") {
+            val props = project.properties
+            storeFile = props["KEYSTORE_PATH"]?.toString()?.let { file(it) }
+            storePassword = props["KEYSTORE_PASSWORD"]?.toString()
+            keyAlias = props["KEY_ALIAS"]?.toString()
+            keyPassword = props["KEY_PASSWORD"]?.toString()
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
