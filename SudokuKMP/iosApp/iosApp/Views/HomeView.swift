@@ -17,7 +17,7 @@ struct HomeView: View {
                 VStack(spacing: 4) {
                     Text("Sudoku")
                         .font(.system(size: 48, weight: .bold))
-                        .foregroundColor(Color("Navy"))
+                        .foregroundColor(Color(hex: "#2C3E50"))
                     Text("A Brain Gym")
                         .font(.system(size: 22, weight: .medium))
                         .foregroundColor(Color.blue)
@@ -30,8 +30,9 @@ struct HomeView: View {
                 // Streak badge
                 if statsViewModel.stats.currentStreak > 0 {
                     HStack(spacing: 8) {
-                        Text("🔥")
+                        Image(systemName: "flame.fill")
                             .font(.system(size: 20))
+                            .foregroundColor(.orange)
                         Text("\(statsViewModel.stats.currentStreak) day streak!")
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(Color.orange)
@@ -52,12 +53,12 @@ struct HomeView: View {
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.bottom, 4)
 
-                    ForEach(DifficultyUI.allCases) { diff in
+                    ForEach(Difficulty.allCases) { diff in
                         let isSelected = gameViewModel.state.difficulty == diff
                         HStack {
                             Text(diff.rawValue)
                                 .font(.system(size: 20, weight: .semibold))
-                                .foregroundColor(isSelected ? .blue : Color("Navy"))
+                                .foregroundColor(isSelected ? .blue : Color(hex: "#2C3E50"))
                             Spacer()
                             Text("\(diff.clues) clues")
                                 .font(.system(size: 14))

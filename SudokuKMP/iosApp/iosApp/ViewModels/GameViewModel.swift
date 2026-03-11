@@ -1,60 +1,20 @@
 import Foundation
 import Combine
-import Shared  // KMP shared framework
-
-// MARK: - Models mirroring Kotlin shared module
-
-struct SudokuCellUI {
-    var value: Int
-    var isInitial: Bool
-    var isSolverFilled: Bool
-    var notes: [Int]
-}
-
-struct SolverStepUI {
-    let row: Int
-    let col: Int
-    let value: Int
-    let strategy: String
-    let reasoning: String
-}
 
 struct GameUIState {
-    var grid: [[SudokuCellUI]] = Self.emptyGrid()
+    var grid: SudokuGrid = emptyGrid()
     var selectedCell: (row: Int, col: Int)? = nil
-    var difficulty: DifficultyUI = .easy
+    var difficulty: Difficulty = .easy
     var isCompleted: Bool = false
     var elapsedSeconds: Int = 0
     var mistakes: Int = 0
     var maxMistakes: Int = 3
     var isSolverActive: Bool = false
     var solverFillingCell: (Int, Int)? = nil
-    var solverSteps: [SolverStepUI] = []
+    var solverSteps: [SolverStep] = []
     var currentSolverReasoning: String = ""
     var isGameOver: Bool = false
     var showCompletionDialog: Bool = false
-
-    static func emptyGrid() -> [[SudokuCellUI]] {
-        Array(repeating: Array(repeating: SudokuCellUI(value: 0, isInitial: false,
-            isSolverFilled: false, notes: []), count: 9), count: 9)
-    }
-}
-
-enum DifficultyUI: String, CaseIterable, Identifiable {
-    case easy = "Easy"
-    case medium = "Medium"
-    case hard = "Hard"
-    var id: String { rawValue }
-    var clues: Int {
-        switch self { case .easy: return 46; case .medium: return 36; case .hard: return 26 }
-    }
-    var kmpDifficulty: Difficulty {
-        switch self {
-        case .easy: return Difficulty.easy
-        case .medium: return Difficulty.medium
-        case .hard: return Difficulty.hard
-        }
-    }
 }
 
 @MainActor
@@ -74,13 +34,13 @@ class GameViewModel: ObservableObject {
         startNewGame()
     }
 
-    func startNewGame(difficulty: DifficultyUI? = nil) {
+    func startNewGame(difficulty: Difficulty? = nil) {
         stopSolver()
         timerTask?.cancel()
         let diff = difficulty ?? state.difficulty
-        let puzzle = generator.generatePuzzle(difficulty: diff.kmpDifficulty)
+        let puzzle = generator.generatePuzzle(difficulty: diff)
         state = GameUIState(
-            grid: convertGrid(puzzle),
+            grid: puzzle,
             difficulty: diff,
             elapsedSeconds: 0
         )
@@ -101,10 +61,9 @@ class GameViewModel: ObservableObject {
         guard !cell.isInitial else { return }
 
         if num != 0 {
-            let intGrid = makeIntGrid()
+            var intGrid = toIntGrid(state.grid)
             intGrid[sel.row][sel.col] = 0
-            if !validator.isValidMove(grid: intGrid, row: Int32(sel.row),
-                                      col: Int32(sel.col), num: Int32(num)) {
+            if !validator.isValidMove(grid: intGrid, row: sel.row, col: sel.col, num: num) {
                 state.mistakes += 1
                 if state.mistakes >= state.maxMistakes {
                     timerTask?.cancel()
@@ -131,29 +90,23 @@ class GameViewModel: ObservableObject {
         solverTask = Task {
             var filled = 0
             while filled < maxCells {
-                let kmpGrid = makeKmpGrid()
-                guard let step = solver.findNextStep(grid: kmpGrid) else { break }
-                await MainActor.run {
-                    state.solverFillingCell = (Int(step.row), Int(step.col))
-                    state.currentSolverReasoning = step.reasoning
-                }
+                guard let step = solver.findNextStep(grid: state.grid) else { break }
+                state.solverFillingCell = (step.row, step.col)
+                state.currentSolverReasoning = step.reasoning
+
                 try? await Task.sleep(nanoseconds: UInt64(stepDelayMs) * 1_000_000)
                 guard !Task.isCancelled else { break }
-                await MainActor.run {
-                    state.grid[Int(step.row)][Int(step.col)].value = Int(step.value)
-                    state.grid[Int(step.row)][Int(step.col)].isSolverFilled = true
-                    state.solverFillingCell = nil
-                    state.solverSteps.append(SolverStepUI(
-                        row: Int(step.row), col: Int(step.col),
-                        value: Int(step.value), strategy: step.strategy,
-                        reasoning: step.reasoning
-                    ))
-                    checkCompletion()
-                }
+
+                state.grid[step.row][step.col].value = step.value
+                state.grid[step.row][step.col].isSolverFilled = true
+                state.solverFillingCell = nil
+                state.solverSteps.append(step)
+                checkCompletion()
+
                 filled += 1
                 if state.isCompleted { break }
             }
-            await MainActor.run { state.isSolverActive = false }
+            state.isSolverActive = false
         }
     }
 
@@ -173,14 +126,13 @@ class GameViewModel: ObservableObject {
             while !Task.isCancelled {
                 try? await Task.sleep(nanoseconds: 1_000_000_000)
                 guard !Task.isCancelled else { break }
-                await MainActor.run { state.elapsedSeconds += 1 }
+                state.elapsedSeconds += 1
             }
         }
     }
 
     private func checkCompletion() {
-        let kmpGrid = makeKmpGrid()
-        if validator.isComplete(grid: kmpGrid) && validator.isValidSolution(grid: kmpGrid) {
+        if validator.isComplete(grid: state.grid) && validator.isValidSolution(grid: state.grid) {
             timerTask?.cancel()
             stopSolver()
             state.isCompleted = true
@@ -189,40 +141,7 @@ class GameViewModel: ObservableObject {
         }
     }
 
-    private func convertGrid(_ kmpGrid: SudokuGrid) -> [[SudokuCellUI]] {
-        (0..<9).map { r in
-            (0..<9).map { c in
-                let cell = kmpGrid[r][c] as! SudokuCell
-                return SudokuCellUI(
-                    value: Int(cell.value),
-                    isInitial: cell.isInitial,
-                    isSolverFilled: cell.isSolverFilled,
-                    notes: []
-                )
-            }
-        }
-    }
-
-    private func makeKmpGrid() -> SudokuGrid {
-        // Build a SudokuGrid (List<List<SudokuCell>>) from our state
-        return (0..<9).map { r in
-            (0..<9).map { c in
-                let ui = state.grid[r][c]
-                return SudokuCell(
-                    value: Int32(ui.value),
-                    isInitial: ui.isInitial,
-                    notes: [],
-                    isSolverFilled: ui.isSolverFilled
-                )
-            }
-        }
-    }
-
-    private func makeIntGrid() -> [[Int32]] {
-        state.grid.map { row in row.map { Int32($0.value) } }
-    }
-
-    // MARK: - Persistence helpers
+    // MARK: - Persistence
 
     private func recordGamePlayed() {
         let count = userDefaults.integer(forKey: "games_played")

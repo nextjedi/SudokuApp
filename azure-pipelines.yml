@@ -1,0 +1,67 @@
+# azure-pipelines.yml
+# Copy this file to the ROOT of the SudokuApp repo as: azure-pipelines.yml
+# Repo: git@github.com:nextjedi/SudokuApp.git
+# See ONBOARDING.md in nextjedi/apps-ops for full setup instructions.
+#
+# Azure DevOps Library setup required before running:
+#
+# Variable groups (Library → Variable groups):
+#   mobile-shared-signing   (Vsts)
+#     ASC_KEY_ID            Apple App Store Connect API key ID
+#     ASC_ISSUER_ID         Apple App Store Connect issuer ID
+#
+#   mobile-shared-secrets   (Key Vault linked)
+#     P12_PASSWORD          Password for distribution.p12
+#
+#   app-sudoku              (Vsts)
+#     ANDROID_PACKAGE_NAME  com.nextjedi.sudokustreak
+#     IOS_BUNDLE_ID         com.nextjedi.sudoku
+#     KEY_ALIAS             sudoku
+#     IOS_SCHEME            Sudoku
+#     APPLE_TEAM_ID         DLQ4JM3YPQ
+#
+#   app-sudoku-secrets      (Key Vault linked)
+#     KEYSTORE_PASSWORD     Android keystore store password
+#     KEY_PASSWORD          Android keystore key password
+#
+# Secure files (Library → Secure files):
+#   upload-keystore.jks                              Android signing keystore
+#   distribution.p12                                 iOS distribution certificate
+#   ios-distribution.mobileprovision                 iOS App Store provisioning profile
+#   AuthKey_KFMUN9Z5NJ.p8                            Apple App Store Connect API key
+#   playstore-deployment-478918-bfdbcec06414.json    Google service account key
+#
+# GitHub service connection:
+#   endpoint: GitHub-nextjedi   (must have access to nextjedi/SudokuApp)
+
+resources:
+  repositories:
+    - repository: devops-central
+      type: github
+      name: nextjedi/apps-ops
+      ref: refs/heads/master
+      endpoint: GitHub-nextjedi
+
+trigger:
+  branches:
+    include:
+      - main
+      - master
+  paths:
+    exclude:
+      - "*.md"
+      - docs/**
+
+pr:
+  branches:
+    include:
+      - main
+      - master
+
+extends:
+  template: azure-pipelines/templates/kmp-swiftui-deploy.yml@devops-central
+  parameters:
+    appVariableGroup: "app-sudoku"
+    projectRoot: "SudokuKMP"
+    androidModule: "androidApp"
+    iosWorkspace: "iosApp/App.xcworkspace"

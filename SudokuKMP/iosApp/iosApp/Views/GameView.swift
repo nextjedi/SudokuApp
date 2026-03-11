@@ -19,9 +19,14 @@ struct GameView: View {
                         Text(state.difficulty.rawValue)
                             .font(.system(size: 22, weight: .bold))
                             .foregroundColor(Color(hex: "#2C3E50"))
-                        Text("❌ \(state.mistakes)/\(state.maxMistakes)")
-                            .font(.system(size: 15))
-                            .foregroundColor(.red)
+                        HStack(spacing: 4) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.red)
+                                .font(.system(size: 14))
+                            Text("\(state.mistakes)/\(state.maxMistakes)")
+                                .font(.system(size: 15))
+                                .foregroundColor(.red)
+                        }
                     }
                     Spacer()
                     if settings.timerEnabled {
@@ -62,8 +67,9 @@ struct GameView: View {
                                 .font(.system(size: 13))
                                 .foregroundColor(Color(hex: "#856404"))
                         }
-                        ForEach(state.solverSteps.suffix(3).indices, id: \.self) { i in
-                            Text(state.solverSteps.suffix(3)[i].reasoning)
+                        let recentSteps = Array(state.solverSteps.suffix(3))
+                        ForEach(recentSteps.indices, id: \.self) { i in
+                            Text(recentSteps[i].reasoning)
                                 .font(.system(size: 12))
                                 .foregroundColor(.gray)
                         }
@@ -84,7 +90,7 @@ struct GameView: View {
                         Text("Speed:").font(.system(size: 14)).foregroundColor(.gray)
                         Spacer()
                         HStack(spacing: 6) {
-                            ForEach([(500,"0.5s"),(1500,"1.5s"),(3000,"3s")], id: \.0) { ms, label in
+                            ForEach([(500, "0.5s"), (1500, "1.5s"), (3000, "3s")], id: \.0) { ms, label in
                                 let active = settings.solverSpeedMs == ms
                                 Button(label) { settingsViewModel.setSolverSpeed(ms) }
                                     .font(.system(size: 12, weight: .semibold))
@@ -101,7 +107,7 @@ struct GameView: View {
                         Text("Cells:").font(.system(size: 14)).foregroundColor(.gray)
                         Spacer()
                         HStack(spacing: 6) {
-                            ForEach([1,3,5,9], id: \.self) { n in
+                            ForEach([1, 3, 5, 9], id: \.self) { n in
                                 let active = settings.solverHelpCells == n
                                 Button("\(n)") { settingsViewModel.setSolverHelpCells(n) }
                                     .font(.system(size: 12, weight: .semibold))
@@ -150,7 +156,7 @@ struct GameView: View {
             Button("Exit", role: .destructive, action: onExit)
             Button("Cancel", role: .cancel) {}
         } message: { Text("Current progress will be lost.") }
-        .alert("Congratulations! 🎉", isPresented: .init(
+        .alert("Congratulations!", isPresented: .init(
             get: { state.showCompletionDialog },
             set: { _ in gameViewModel.dismissCompletionDialog() }
         )) {

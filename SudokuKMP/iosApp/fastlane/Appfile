@@ -1,0 +1,9 @@
+app_identifier("com.nextjedi.sudoku")
+apple_id(ENV['APPLE_ID']) # Your Apple ID email
+team_id("DLQ4JM3YPQ")
+
+# For App Store Connect API Key authentication (recommended for CI/CD)
+# Set these environment variables or use a .env file
+# APP_STORE_CONNECT_KEY_ID
+# APP_STORE_CONNECT_ISSUER_ID
+# APP_STORE_CONNECT_KEY_CONTENT (base64 encoded)

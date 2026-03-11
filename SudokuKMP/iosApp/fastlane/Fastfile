@@ -1,0 +1,114 @@
+default_platform(:ios)
+
+platform :ios do
+
+  # ============================================
+  # BUILD LANES
+  # ============================================
+
+  desc "Build for TestFlight (Internal Testing)"
+  lane :build_alpha do
+    build_app(
+      project: "SudokuBrainGym.xcodeproj",
+      scheme: "Sudoku",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "SudokuBrainGym-alpha.ipa",
+      clean: true
+    )
+  end
+
+  desc "Build for TestFlight (External Beta)"
+  lane :build_beta do
+    build_app(
+      project: "SudokuBrainGym.xcodeproj",
+      scheme: "Sudoku",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "SudokuBrainGym-beta.ipa",
+      clean: true
+    )
+  end
+
+  desc "Build for App Store Production"
+  lane :build_production do
+    build_app(
+      project: "SudokuBrainGym.xcodeproj",
+      scheme: "Sudoku",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "SudokuBrainGym.ipa",
+      clean: true
+    )
+  end
+
+  # ============================================
+  # DEPLOYMENT LANES
+  # ============================================
+
+  desc "Deploy to TestFlight (Internal Testing)"
+  lane :deploy_alpha do
+    build_alpha
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      distribute_external: false
+    )
+  end
+
+  desc "Deploy to TestFlight (External Beta)"
+  lane :deploy_beta do
+    build_beta
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      distribute_external: true,
+      groups: ["Beta Testers"]
+    )
+  end
+
+  desc "Deploy to App Store"
+  lane :deploy_production do
+    build_production
+    upload_to_app_store(
+      skip_metadata: true,
+      skip_screenshots: true,
+      submit_for_review: false,
+      automatic_release: false
+    )
+  end
+
+  # ============================================
+  # UTILITY LANES
+  # ============================================
+
+  desc "Increment build number"
+  lane :bump_build do
+    increment_build_number(
+      xcodeproj: "SudokuBrainGym.xcodeproj"
+    )
+  end
+
+  desc "Increment version number (patch)"
+  lane :bump_version_patch do
+    increment_version_number(
+      xcodeproj: "SudokuBrainGym.xcodeproj",
+      bump_type: "patch"
+    )
+  end
+
+  desc "Increment version number (minor)"
+  lane :bump_version_minor do
+    increment_version_number(
+      xcodeproj: "SudokuBrainGym.xcodeproj",
+      bump_type: "minor"
+    )
+  end
+
+  desc "Take App Store screenshots"
+  lane :screenshots do
+    capture_screenshots(
+      project: "SudokuBrainGym.xcodeproj",
+      scheme: "Sudoku"
+    )
+  end
+
+end

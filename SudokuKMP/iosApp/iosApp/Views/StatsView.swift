@@ -21,24 +21,28 @@ struct StatsView: View {
 
                 // Stats grid
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                    StatCardView(emoji: "🔥", value: "\(stats.currentStreak)",
-                                 label: "Streak", subtext: "days")
-                    StatCardView(emoji: "🎮", value: "\(stats.gamesPlayed)",
-                                 label: "Played", subtext: "total")
-                    StatCardView(emoji: "🏆", value: "\(stats.gamesWon)",
-                                 label: "Won", subtext: "games")
-                    StatCardView(emoji: "📊", value: "\(stats.winRate)%",
-                                 label: "Win Rate", subtext: "success")
+                    StatCardView(systemImage: "flame.fill", imageColor: .orange,
+                                 value: "\(stats.currentStreak)", label: "Streak", subtext: "days")
+                    StatCardView(systemImage: "gamecontroller.fill", imageColor: .blue,
+                                 value: "\(stats.gamesPlayed)", label: "Played", subtext: "total")
+                    StatCardView(systemImage: "trophy.fill", imageColor: .yellow,
+                                 value: "\(stats.gamesWon)", label: "Won", subtext: "games")
+                    StatCardView(systemImage: "chart.bar.fill", imageColor: .green,
+                                 value: "\(stats.winRate)%", label: "Win Rate", subtext: "success")
                 }
                 .padding(.horizontal, 24)
 
                 Spacer().frame(height: 28)
 
-                Text("⏱ Best Times")
-                    .font(.system(size: 22, weight: .semibold))
-                    .foregroundColor(Color(hex: "#2C3E50"))
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 12)
+                HStack(spacing: 6) {
+                    Image(systemName: "timer")
+                        .foregroundColor(Color(hex: "#2C3E50"))
+                    Text("Best Times")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundColor(Color(hex: "#2C3E50"))
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 12)
 
                 ForEach([("Easy", stats.bestEasySec),
                          ("Medium", stats.bestMediumSec),
@@ -95,14 +99,17 @@ struct StatsView: View {
 }
 
 struct StatCardView: View {
-    let emoji: String
+    let systemImage: String
+    let imageColor: Color
     let value: String
     let label: String
     let subtext: String
 
     var body: some View {
         VStack(spacing: 4) {
-            Text(emoji).font(.system(size: 24))
+            Image(systemName: systemImage)
+                .font(.system(size: 24))
+                .foregroundColor(imageColor)
             Text(value)
                 .font(.system(size: 32, weight: .bold))
                 .foregroundColor(.blue)

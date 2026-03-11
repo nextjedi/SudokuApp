@@ -1,23 +1,30 @@
 import SwiftUI
 
 struct SudokuGridView: View {
-    let grid: [[SudokuCellUI]]
+    let grid: SudokuGrid
     let selectedCell: (row: Int, col: Int)?
     let highlightEnabled: Bool
     let solverFillingCell: (Int, Int)?
     let onCellTap: (Int, Int) -> Void
 
     var body: some View {
-        VStack(spacing: 0) {
-            ForEach(0..<9, id: \.self) { row in
-                HStack(spacing: 0) {
-                    ForEach(0..<9, id: \.self) { col in
-                        cellView(row: row, col: col)
+        GeometryReader { geometry in
+            let size = min(geometry.size.width, geometry.size.height)
+            let cellSize = size / 9
+
+            VStack(spacing: 0) {
+                ForEach(0..<9, id: \.self) { row in
+                    HStack(spacing: 0) {
+                        ForEach(0..<9, id: \.self) { col in
+                            cellView(row: row, col: col)
+                                .frame(width: cellSize, height: cellSize)
+                        }
                     }
                 }
             }
+            .border(Color(hex: "#2C3E50"), width: 2)
         }
-        .border(Color(hex: "#2C3E50"), width: 2)
+        .aspectRatio(1, contentMode: .fit)
     }
 
     @ViewBuilder
@@ -48,23 +55,25 @@ struct SudokuGridView: View {
                     )
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .aspectRatio(1, contentMode: .fit)
         .border(Color.gray.opacity(0.3), width: 0.5)
         .overlay(
-            Rectangle()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .overlay(alignment: .trailing) {
-                    if col == 2 || col == 5 {
-                        Rectangle().frame(width: 2).foregroundColor(Color(hex: "#2C3E50"))
-                    }
+            ZStack {
+                // Right thick border at columns 2 and 5
+                if col == 2 || col == 5 {
+                    Rectangle()
+                        .frame(width: 2)
+                        .foregroundColor(Color(hex: "#2C3E50"))
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                 }
-                .overlay(alignment: .bottom) {
-                    if row == 2 || row == 5 {
-                        Rectangle().frame(height: 2).foregroundColor(Color(hex: "#2C3E50"))
-                    }
+                // Bottom thick border at rows 2 and 5
+                if row == 2 || row == 5 {
+                    Rectangle()
+                        .frame(height: 2)
+                        .foregroundColor(Color(hex: "#2C3E50"))
+                        .frame(maxHeight: .infinity, alignment: .bottom)
                 }
-                .allowsHitTesting(false)
+            }
+            .allowsHitTesting(false)
         )
         .onTapGesture { onCellTap(row, col) }
     }
