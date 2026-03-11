@@ -27,13 +27,10 @@ on:
   #     - 'v*'
   #   paths:
   #     - 'src/**'
-  #     - 'ios/**'
+  #     - 'SudokuKMP/iosApp/**'
   #     - 'app.json'
   #     - 'package.json'
   #     - 'package-lock.json'
-  #     - 'tsconfig.json'
-  #     - 'babel.config.js'
-  #     - 'metro.config.js'
   #     - '.github/workflows/ios-build.yml'
   #   paths-ignore:
   #     - 'web/**'
@@ -52,37 +49,41 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
           bundler-cache: false
 
-      - name: Install Node dependencies
-        run: npm ci --legacy-peer-deps
-
       - name: Install CocoaPods dependencies
         run: |
-          cd ios
+          cd SudokuKMP/iosApp
           pod install
 
-      - name: Setup Fastlane Match SSH Key
+      - name: Install signing certificate
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.MATCH_GIT_PRIVATE_KEY }}" | base64 -d > ~/.ssh/match_key
-          chmod 600 ~/.ssh/match_key
-          ssh-add ~/.ssh/match_key
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          echo "${{ secrets.IOS_DISTRIBUTION_CERT_P12 }}" | base64 -d > /tmp/distribution.p12
+          security create-keychain -p "${{ secrets.IOS_CERT_KEYCHAIN_PASSWORD }}" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "${{ secrets.IOS_CERT_KEYCHAIN_PASSWORD }}" build.keychain
+          security import /tmp/distribution.p12 \
+            -k build.keychain \
+            -P "${{ secrets.IOS_DISTRIBUTION_CERT_PASSWORD }}" \
+            -T /usr/bin/codesign
+          security set-key-partition-list \
+            -S apple-tool:,apple: -s \
+            -k "${{ secrets.IOS_CERT_KEYCHAIN_PASSWORD }}" build.keychain
+          rm /tmp/distribution.p12
+
+      - name: Install provisioning profile
+        run: |
+          PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$PROFILES_DIR"
+          echo "${{ secrets.IOS_PROVISIONING_PROFILE }}" | base64 -d > "$PROFILES_DIR/sudoku-appstore.mobileprovision"
 
       - name: Install Fastlane
         run: |
-          cd ios
+          cd SudokuKMP/iosApp
           gem install fastlane -N
           bundle init
           bundle add fastlane
@@ -104,17 +105,12 @@ jobs:
 
       - name: Run Fastlane
         env:
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
-          TEAM_ID: ${{ secrets.TEAM_ID }}
-          APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_KEY_CONTENT }}
-          PROVISIONING_PROFILE_SPECIFIER: ${{ secrets.PROVISIONING_PROFILE_SPECIFIER }}
         run: |
-          cd ios
+          cd SudokuKMP/iosApp
           bundle exec fastlane ${{ steps.lane.outputs.lane }}
 
       - name: Upload IPA artifact
@@ -122,10 +118,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-release-ipa
-          path: ios/build/*.ipa
+          path: SudokuKMP/iosApp/build/*.ipa
           retention-days: 30
 
-      - name: Cleanup SSH keys
+      - name: Cleanup keychain
         if: always()
         run: |
-          rm -f ~/.ssh/match_key
+          security delete-keychain build.keychain

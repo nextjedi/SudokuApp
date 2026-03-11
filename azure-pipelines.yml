@@ -11,25 +11,25 @@
 #     ASC_ISSUER_ID         Apple App Store Connect issuer ID
 #
 #   mobile-shared-secrets   (Key Vault linked)
-#     P12_PASSWORD          Password for distribution.p12
+#     ios-p12-password      Password for distribution.p12
 #
 #   app-sudoku              (Vsts)
 #     ANDROID_PACKAGE_NAME  com.nextjedi.sudokustreak
 #     IOS_BUNDLE_ID         com.nextjedi.sudoku
-#     KEY_ALIAS             sudoku
+#     KEY_ALIAS             sudoku-release-key
 #     IOS_SCHEME            Sudoku
-#     APPLE_TEAM_ID         DLQ4JM3YPQ
+#     APPLE_TEAM_ID         DLQ4JM3YPQ (from mobile-shared-signing)
 #
 #   app-sudoku-secrets      (Key Vault linked)
-#     KEYSTORE_PASSWORD     Android keystore store password
-#     KEY_PASSWORD          Android keystore key password
+#     sudoku-keystore-password   Android keystore store password
+#     sudoku-key-password        Android keystore key password
 #
 # Secure files (Library → Secure files):
 #   upload-keystore.jks                              Android signing keystore
 #   distribution.p12                                 iOS distribution certificate
-#   ios-distribution.mobileprovision                 iOS App Store provisioning profile
+#   sudoku-appstore.mobileprovision                  iOS App Store provisioning profile
 #   AuthKey_KFMUN9Z5NJ.p8                            Apple App Store Connect API key
-#   playstore-deployment-478918-bfdbcec06414.json    Google service account key
+#   playstore-deployment-478918-37cdbda51809.json    Google service account key
 #
 # GitHub service connection:
 #   endpoint: GitHub-nextjedi   (must have access to nextjedi/SudokuApp)
@@ -64,4 +64,8 @@ extends:
     appVariableGroup: "app-sudoku"
     projectRoot: "SudokuKMP"
     androidModule: "androidApp"
-    iosWorkspace: "iosApp/App.xcworkspace"
+    iosWorkspace: "SudokuKMP/iosApp/App.xcworkspace"
+    keystorePasswordVar: "sudoku-keystore-password"
+    keyPasswordVar: "sudoku-key-password"
+    provisioningProfile: "sudoku-appstore.mobileprovision"
+    buildXCFramework: false  # iOS app is pure Swift, doesn't consume KMP shared module
