@@ -11,5 +11,6 @@ local.properties
 !debug.keystore
 iosApp/Pods/
 iosApp/*.xcworkspace
+!iosApp/App.xcworkspace
 iosApp/iosApp.xcodeproj/xcuserdata/
 .kotlin/
