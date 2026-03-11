@@ -15,13 +15,13 @@ import com.nextjedi.sudokustreak.android.viewmodel.StatsViewModel
 class MainActivity : ComponentActivity() {
 
     private val gameViewModel: GameViewModel by lazy {
-        ViewModelProvider(this, DataStoreViewModelFactory(dataStore))[GameViewModel::class.java]
+        ViewModelProvider(this, DataStoreViewModelFactory(this))[GameViewModel::class.java]
     }
     private val settingsViewModel: SettingsViewModel by lazy {
-        ViewModelProvider(this, DataStoreViewModelFactory(dataStore))[SettingsViewModel::class.java]
+        ViewModelProvider(this, DataStoreViewModelFactory(this))[SettingsViewModel::class.java]
     }
     private val statsViewModel: StatsViewModel by lazy {
-        ViewModelProvider(this, DataStoreViewModelFactory(dataStore))[StatsViewModel::class.java]
+        ViewModelProvider(this, DataStoreViewModelFactory(this))[StatsViewModel::class.java]
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -67,7 +67,9 @@ fun StatsScreen(
             "Easy" to stats.bestEasySec,
             "Medium" to stats.bestMediumSec,
             "Hard" to stats.bestHardSec
-        ).forEach { (label, sec) ->
+        ).forEach { pair: Pair<String, Long> ->
+            val label = pair.first
+            val sec = pair.second
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
