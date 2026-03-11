@@ -27,7 +27,7 @@
 # Secure files (Library → Secure files):
 #   upload-keystore.jks                              Android signing keystore
 #   distribution.p12                                 iOS distribution certificate
-#   ios-distribution.mobileprovision                 iOS App Store provisioning profile
+#   sudoku-appstore.mobileprovision                  iOS App Store provisioning profile
 #   AuthKey_KFMUN9Z5NJ.p8                            Apple App Store Connect API key
 #   playstore-deployment-478918-bfdbcec06414.json    Google service account key
 #
@@ -67,3 +67,4 @@ extends:
     iosWorkspace: "iosApp/App.xcworkspace"
     keystorePasswordVar: "sudoku-keystore-password"
     keyPasswordVar: "sudoku-key-password"
+    provisioningProfile: "sudoku-appstore.mobileprovision"
