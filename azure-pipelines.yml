@@ -11,18 +11,18 @@
 #     ASC_ISSUER_ID         Apple App Store Connect issuer ID
 #
 #   mobile-shared-secrets   (Key Vault linked)
-#     P12_PASSWORD          Password for distribution.p12
+#     ios-p12-password      Password for distribution.p12
 #
 #   app-sudoku              (Vsts)
 #     ANDROID_PACKAGE_NAME  com.nextjedi.sudokustreak
 #     IOS_BUNDLE_ID         com.nextjedi.sudoku
 #     KEY_ALIAS             sudoku
 #     IOS_SCHEME            Sudoku
-#     APPLE_TEAM_ID         DLQ4JM3YPQ
+#     APPLE_TEAM_ID         DLQ4JM3YPQ (from mobile-shared-signing)
 #
 #   app-sudoku-secrets      (Key Vault linked)
-#     KEYSTORE_PASSWORD     Android keystore store password
-#     KEY_PASSWORD          Android keystore key password
+#     sudoku-keystore-password   Android keystore store password
+#     sudoku-key-password        Android keystore key password
 #
 # Secure files (Library → Secure files):
 #   upload-keystore.jks                              Android signing keystore
@@ -65,3 +65,5 @@ extends:
     projectRoot: "SudokuKMP"
     androidModule: "androidApp"
     iosWorkspace: "iosApp/App.xcworkspace"
+    keystorePasswordVar: "sudoku-keystore-password"
+    keyPasswordVar: "sudoku-key-password"
