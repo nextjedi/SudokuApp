@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.nextjedi.sudokustreak"
+    namespace = "com.nextjedi.sudoku"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.nextjedi.sudokustreak"
+        applicationId = "com.nextjedi.sudoku"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
