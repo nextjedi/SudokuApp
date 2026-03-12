@@ -25,7 +25,7 @@
 #     sudoku-key-password        Android keystore key password
 #
 # Secure files (Library → Secure files):
-#   sudoku-release.keystore                          Android signing keystore (Sudoku-specific)
+#   upload-keystore.jks                              Android signing keystore
 #   distribution.p12                                 iOS distribution certificate
 #   sudoku-appstore.mobileprovision                  iOS App Store provisioning profile
 #   AuthKey_KFMUN9Z5NJ.p8                            Apple App Store Connect API key
@@ -62,11 +62,10 @@ extends:
   template: azure-pipelines/templates/kmp-swiftui-deploy.yml@devops-central
   parameters:
     appVariableGroup: "app-sudoku"
-    keystoreFile: "sudoku-release.keystore"
     projectRoot: "SudokuKMP"
     androidModule: "androidApp"
     iosWorkspace: "iosApp/App.xcworkspace"
+    keystoreFile: "sudoku-release.keystore"
     keystorePasswordVar: "sudoku-keystore-password"
     keyPasswordVar: "sudoku-key-password"
-    provisioningProfile: "sudoku-appstore.mobileprovision"
     buildXCFramework: false  # iOS app is pure Swift, doesn't consume KMP shared module
