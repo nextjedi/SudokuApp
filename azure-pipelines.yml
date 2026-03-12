@@ -64,7 +64,7 @@ extends:
     appVariableGroup: "app-sudoku"
     projectRoot: "SudokuKMP"
     androidModule: "androidApp"
-    iosWorkspace: "SudokuKMP/iosApp/App.xcworkspace"
+    iosWorkspace: "iosApp/App.xcworkspace"
     keystorePasswordVar: "sudoku-keystore-password"
     keyPasswordVar: "sudoku-key-password"
     provisioningProfile: "sudoku-appstore.mobileprovision"
