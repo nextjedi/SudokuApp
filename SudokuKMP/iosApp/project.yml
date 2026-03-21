@@ -26,11 +26,14 @@ targets:
       - path: iosApp
         excludes:
           - "**/.DS_Store"
+    entitlements:
+      path: iosApp/iosApp.entitlements
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.nextjedi.sudoku
         DEVELOPMENT_TEAM: DLQ4JM3YPQ
         INFOPLIST_FILE: iosApp/Info.plist
+        CODE_SIGN_ENTITLEMENTS: iosApp/iosApp.entitlements
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: 1
         CODE_SIGN_STYLE: Automatic

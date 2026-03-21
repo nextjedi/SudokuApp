@@ -1,0 +1,31 @@
+# Snapfile - Screenshot configuration for App Store
+
+# Xcode project and scheme
+project("SudokuBrainGym.xcodeproj")
+scheme("Sudoku")
+
+# Devices for App Store screenshots
+devices([
+  # 6.5-inch iPhone (required for App Store)
+  "iPhone 15 Plus",
+
+  # 13-inch iPad (required for App Store)
+  "iPad Pro (13-inch) (M4)",
+])
+
+# Languages for screenshots
+languages([
+  "en-US",
+])
+
+# Output directory
+output_directory("./fastlane/screenshots")
+
+# Clear previous screenshots
+clear_previous_screenshots(true)
+
+# Stop after first error
+stop_after_first_error(true)
+
+# Reinstall app before taking screenshots
+reinstall_app(false)
