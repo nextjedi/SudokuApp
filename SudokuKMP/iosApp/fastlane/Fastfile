@@ -14,7 +14,8 @@ platform :ios do
       export_method: "app-store",
       output_directory: "./build",
       output_name: "SudokuBrainGym-alpha.ipa",
-      clean: true
+      clean: true,
+      xcargs: "-allowProvisioningUpdates"
     )
   end
 
@@ -26,7 +27,8 @@ platform :ios do
       export_method: "app-store",
       output_directory: "./build",
       output_name: "SudokuBrainGym-beta.ipa",
-      clean: true
+      clean: true,
+      xcargs: "-allowProvisioningUpdates"
     )
   end
 
@@ -38,7 +40,8 @@ platform :ios do
       export_method: "app-store",
       output_directory: "./build",
       output_name: "SudokuBrainGym.ipa",
-      clean: true
+      clean: true,
+      xcargs: "-allowProvisioningUpdates"
     )
   end
 
