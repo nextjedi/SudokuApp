@@ -33,6 +33,21 @@ robolectric = "4.13"
 androidx-test-ext-junit = "1.2.1"
 androidx-test-runner = "1.6.2"
 truth = "1.4.4"
+# MockK for android unit tests of StylusInputManager (mocks DigitRecognizer + MotionEvent).
+mockk = "1.13.13"
+# Turbine for asserting Flow emissions in StylusInputManager tests.
+turbine = "1.1.0"
+# ML Kit Digital Ink Recognition — bundled `en` text base model (locked decision §6 (2)
+# in test-plan/00-SYNTHESIS.md and REVAMP_PLAN.md §8). ~20 MB APK delta documented in
+# domain/build-report-stylus.md. Digits filtered post-recognition to "1".."9".
+mlkit-digital-ink = "18.1.0"
+# ML Kit common runtime — pulled transitively by digital-ink, declared for ProGuard
+# rules visibility and version pin parity (matches digital-ink 18.1.0).
+mlkit-common = "18.11.0"
+# kotlinx-coroutines-play-services bridges Google Tasks API → Kotlin suspend.
+# Required to `await()` ML Kit `Task<RecognitionResult>` results inside the
+# `Dispatchers.Default`-bound `MlKitDigitRecognizer.recognize`.
+kotlinx-coroutines-play-services = "1.8.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -49,6 +64,9 @@ compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+# Material Icons core set — covers ArrowBack / Search / Clear / MoreVert used by the
+# Settings screen. The Extended set is larger (~10 MB) so we ship Core only.
+compose-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
 material3-adaptive-nav-suite = { group = "androidx.compose.material3", name = "material3-adaptive-navigation-suite" }
 material3-adaptive = { group = "androidx.compose.material3.adaptive", name = "adaptive", version.ref = "material3-adaptive" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation-compose" }
@@ -58,11 +76,23 @@ kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+# Typed DataStore for AppSettings JSON (settings agent Wave 2). Backs
+# AppSettingsDataStoreRepository — uses kotlinx.serialization-based Serializer<AppSettings>.
+datastore = { group = "androidx.datastore", name = "datastore", version.ref = "datastore" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-ext-junit" }
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidx-test-runner" }
 truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "mockk" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+# ML Kit Digital Ink — recognizer entry-point + model loader. Bundled `en` model is
+# loaded via DigitalInkRecognitionModelIdentifier.fromLanguageTag("en"); see
+# MlKitDigitRecognizer.kt for the digit-only filter + confidence-threshold logic.
+mlkit-digital-ink = { group = "com.google.mlkit", name = "digital-ink-recognition", version.ref = "mlkit-digital-ink" }
+mlkit-common = { group = "com.google.mlkit", name = "common", version.ref = "mlkit-common" }
+kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "kotlinx-coroutines-play-services" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

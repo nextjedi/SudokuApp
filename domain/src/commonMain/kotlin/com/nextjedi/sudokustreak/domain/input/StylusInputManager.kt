@@ -55,6 +55,9 @@ expect class StylusInputManager {
  *   points by the caller.
  * - [HoverEnter] / [HoverExit]: stylus is near the surface but not touching it.
  *   Used to render a ghost-digit preview on supported devices (S-Pen, Apple Pencil 2).
+ * - [SideButtonPressed]: stylus side button click — S-Pen `KEYCODE_STYLUS_BUTTON_PRIMARY`
+ *   on Android, `UIPencilInteraction` squeeze on iOS. Used to toggle pencil-notes mode
+ *   (Apple Pencil squeeze parity, resolves P0-12 / P1-24 in test-plan/00-SYNTHESIS.md).
  */
 sealed class StylusEvent {
     data class StrokeBegin(val point: StylusPoint) : StylusEvent()
@@ -62,6 +65,7 @@ sealed class StylusEvent {
     data class StrokeEnd(val points: List<StylusPoint>) : StylusEvent()
     data object HoverEnter : StylusEvent()
     data object HoverExit : StylusEvent()
+    data object SideButtonPressed : StylusEvent()
 }
 
 /**

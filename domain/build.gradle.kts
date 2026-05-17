@@ -70,6 +70,34 @@ kotlin {
             // :shared is hosted here (it has an Android target) so Android consumers
             // of :domain still get :shared types transitively when they need them.
             api(project(":shared"))
+
+            // ML Kit Digital Ink Recognition (Wave 2 — Android StylusInputManager actual).
+            // Bundled `en` text base model loaded at first recognize() call; no runtime
+            // download required because the model artifact ships inside the AAR.
+            // Filter logic restricts candidates to "1".."9" per StylusInputManager.android.kt.
+            // Stylus reviewer PC-7: no WiFi gate; ~20MB APK delta documented in build report.
+            implementation(libs.mlkit.digital.ink)
+            implementation(libs.mlkit.common)
+
+            // Bridges com.google.android.gms.tasks.Task → Kotlin suspend (`Task.await()`).
+            // Used by MlKitDigitRecognizer to await the ML Kit recognize() Task without
+            // blocking the Default dispatcher.
+            implementation(libs.kotlinx.coroutines.play.services)
+        }
+
+        // Android unit tests (Robolectric + MockK + Turbine + JUnit4) for
+        // StylusInputManager.android.kt and MlKitDigitRecognizer.kt.
+        // The custom source-set name is `androidUnitTest` per KMP's androidTarget DSL.
+        val androidUnitTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(libs.junit)
+                implementation(libs.robolectric)
+                implementation(libs.androidx.test.ext.junit)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.mockk)
+                implementation(libs.turbine)
+            }
         }
         iosMain.dependencies {
             api(project(":shared"))
@@ -86,5 +114,14 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    // Robolectric in :domain:androidUnitTest needs Android resources packaged into the
+    // test classpath and default-return semantics for un-stubbed Android framework calls
+    // (matches androidApp/build.gradle.kts).
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+            isReturnDefaultValues = true
+        }
     }
 }

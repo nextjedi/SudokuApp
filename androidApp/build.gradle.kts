@@ -2,6 +2,10 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    // Settings agent (Wave 2): serializer for AppSettingsDataStoreRepository.
+    // Required because we encode AppSettings via kotlinx.serialization JSON inside the
+    // androidx.datastore.core.Serializer<AppSettings> implementation.
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -75,6 +79,10 @@ android {
 
 dependencies {
     implementation(project(":shared"))
+    // :domain provides StylusInputManager (Android actual) + AppSettings + the
+    // bundled ML Kit recognizer; Compose UI in StylusSupport.kt consumes it via
+    // the actual class constructor.
+    implementation(project(":domain"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -87,12 +95,18 @@ dependencies {
     implementation(libs.compose.ui.graphics)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.material3)
+    // Material Icons core set — ArrowBack / Search / Clear / MoreVert for Settings.
+    implementation(libs.compose.material.icons.core)
     // M3E adaptive surface (NavigationSuiteScaffold, currentWindowAdaptiveInfo).
     implementation(libs.material3.adaptive)
     implementation(libs.material3.adaptive.nav.suite)
     implementation(libs.navigation.compose)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.datastore.preferences)
+    // Typed DataStore<AppSettings> — backs AppSettingsDataStoreRepository (Wave 2 settings).
+    implementation(libs.datastore)
+    // kotlinx.serialization JSON for AppSettings persistence (delegated to AppSettingsMigrator).
+    implementation(libs.kotlinx.serialization.json)
 
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
@@ -105,6 +119,9 @@ dependencies {
     testImplementation(libs.androidx.test.ext.junit)
     testImplementation(libs.compose.ui.test.junit4)
     testImplementation(libs.kotlinx.coroutines.test)
+    // Settings agent (Wave 2): SettingsScreenTest stubs `DataStore<Preferences>`
+    // via MockK so the StatsViewModel can be constructed without DataStore IO.
+    testImplementation(libs.mockk)
 
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.ext.junit)
