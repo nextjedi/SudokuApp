@@ -1,0 +1,44 @@
+PLACEHOLDER for the bundled Core ML MNIST digit classifier.
+
+This file is intentionally a text placeholder so the project structure is
+complete on Windows machines (where there is no Xcode/coremlcompiler).
+
+Final file:
+  - Name:        DigitClassifier.mlmodel
+  - Format:      Core ML 6 (`.mlpackage` preferred for iOS 16+).
+  - Input:       28×28 grayscale, OneComponent8 pixel buffer.
+                 MNIST canonical: 20×20 centered content + 4 px padding.
+                 Strokes WHITE on BLACK background (inverted before inference).
+  - Output:      Class label "0".."9" with confidence. Class "0" is treated
+                 as `.unrecognized` (Sudoku has no 0).
+  - Size:        ~200–800 KB.
+  - Latency:     <5 ms on A15 Neural Engine.
+  - Compute:     `MLModelConfiguration.computeUnits = .cpuAndNeuralEngine`.
+
+Training recipe (recommended in test-plan/06-stylus-sensors-privacy-review.md
+§3):
+  Datasets:
+    - MNIST (60k samples) — baseline.
+    - EMNIST-digits (240k samples) — broader handwriting variety.
+    - Chars74K (subset) — adds slant/serif diversity.
+    - Custom PencilKit-style strokes (1k samples) — matches our actual
+      input texture so the model sees real PencilKit ink rendering.
+  Augmentations:
+    - Rotation ±15°
+    - Scale ±20%
+    - Stroke-thickness jitter (1–4 px)
+  Target accuracy:
+    - en-US:    ≥ 92% on Sudoku fixture
+    - en-GB/de-DE: ≥ 85% (crossed 7, closed-loop 9, hooked 4)
+
+Once trained:
+  1. Export as DigitClassifier.mlpackage.
+  2. Add to iosApp/iosApp/Models/ in project.yml as a `resource:` reference.
+  3. Xcode will auto-generate `DigitClassifier.swift` for typed access.
+  4. Wire into StylusInputService.classifyCoreML(...) per its TODO comment.
+
+References:
+  - Core ML overview:        https://developer.apple.com/documentation/coreml
+  - Vision + Core ML:        https://developer.apple.com/documentation/vision/vncoremlrequest
+  - MNIST_DRAW example:      https://github.com/hwchong/MNIST_DRAW
+  - MNIST-CoreML example:    https://github.com/ph1ps/MNIST-CoreML
