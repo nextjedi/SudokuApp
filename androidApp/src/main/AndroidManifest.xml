@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        Sensor hardware declarations — all marked NOT REQUIRED so that Play Store
+        does not filter the listing on devices without one (e.g. tablets without a
+        proximity sensor, or devices with no gyroscope). The SensorService
+        (`:domain:androidMain.SensorService.android.kt`) calls
+        `SensorManager.getDefaultSensor(type)` which returns `null` on missing
+        hardware — we handle that without crashing, so the corresponding feature
+        gracefully degrades (proximity-pause becomes a manual-only feature on a
+        device with no proximity sensor, etc.).
+
+        NOTE: Sensor APIs on Android do NOT require runtime permissions — none of
+        TYPE_PROXIMITY, TYPE_LIGHT, TYPE_ROTATION_VECTOR demand a `<uses-permission>`.
+        See: https://developer.android.com/develop/sensors-and-location/sensors/sensors_overview
+    -->
+    <uses-feature
+        android:name="android.hardware.sensor.proximity"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.sensor.light"
+        android:required="false" />
+    <!--
+        TYPE_ROTATION_VECTOR is a composite sensor backed by accelerometer + gyroscope
+        (+ sometimes magnetometer). We declare gyroscope as the canonical hardware
+        feature for filtering purposes — devices without gyroscope cannot offer the
+        tilt-parallax effect, but the rest of the app works fine.
+    -->
+    <uses-feature
+        android:name="android.hardware.sensor.gyroscope"
+        android:required="false" />
+
+</manifest>

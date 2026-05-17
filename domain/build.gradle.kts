@@ -83,20 +83,28 @@ kotlin {
             // Used by MlKitDigitRecognizer to await the ML Kit recognize() Task without
             // blocking the Default dispatcher.
             implementation(libs.kotlinx.coroutines.play.services)
+
+            // Lifecycle-aware sensor binding (LifecycleEventObserver / DefaultLifecycleObserver).
+            // Wave 2: SensorService binds to a LifecycleOwner so listeners are registered only
+            // on RESUMED and unregistered on PAUSED. See REVAMP_PLAN.md §10.
+            implementation(libs.androidx.lifecycle.runtime.ktx)
         }
 
-        // Android unit tests (Robolectric + MockK + Turbine + JUnit4) for
-        // StylusInputManager.android.kt and MlKitDigitRecognizer.kt.
+        // Android unit tests (Robolectric + MockK + Turbine + Truth + JUnit4) for
+        // StylusInputManager.android.kt + MlKitDigitRecognizer.kt + SensorService.android.kt.
         // The custom source-set name is `androidUnitTest` per KMP's androidTarget DSL.
         val androidUnitTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                implementation(kotlin("test-junit"))
                 implementation(libs.junit)
                 implementation(libs.robolectric)
                 implementation(libs.androidx.test.ext.junit)
+                implementation(libs.androidx.lifecycle.runtime.testing)
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.mockk)
                 implementation(libs.turbine)
+                implementation(libs.truth)
             }
         }
         iosMain.dependencies {
@@ -116,8 +124,8 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
     // Robolectric in :domain:androidUnitTest needs Android resources packaged into the
-    // test classpath and default-return semantics for un-stubbed Android framework calls
-    // (matches androidApp/build.gradle.kts).
+    // test classpath (for SensorService SensorEventBuilder etc.) and default-return
+    // semantics for un-stubbed Android framework calls (matches androidApp/build.gradle.kts).
     testOptions {
         unitTests {
             isIncludeAndroidResources = true

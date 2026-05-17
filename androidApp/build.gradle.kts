@@ -79,9 +79,12 @@ android {
 
 dependencies {
     implementation(project(":shared"))
-    // :domain provides StylusInputManager (Android actual) + AppSettings + the
-    // bundled ML Kit recognizer; Compose UI in StylusSupport.kt consumes it via
-    // the actual class constructor.
+    // :domain provides:
+    //   • StylusInputManager Android actual + bundled ML Kit recognizer
+    //     (consumed by Compose UI in StylusSupport.kt)
+    //   • SensorService expect/actual wired from SudokuApplication.onCreate +
+    //     MainActivity.onCreate via SensorServiceProvider
+    //   • AppSettings + AppSettingsRepository (typed DataStore<AppSettings>)
     implementation(project(":domain"))
 
     implementation(libs.androidx.core.ktx)

@@ -8,6 +8,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.nextjedi.sudokustreak.android.sensor.SensorServiceProvider
 import com.nextjedi.sudokustreak.android.storage.SettingsModule
 import com.nextjedi.sudokustreak.android.ui.navigation.AppNavigation
 import com.nextjedi.sudokustreak.android.ui.theme.SudokuTheme
@@ -34,6 +35,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Lifecycle-aware sensor binding (Wave 2 sensor agent) — listeners register
+        // on ON_RESUME, unregister on ON_PAUSE. Idempotent across configuration changes.
+        SensorServiceProvider.bind(owner = this, context = this)
+
         enableEdgeToEdge()
         setContent {
             // Live-collect the AppSettings so theme + accessibility flags update

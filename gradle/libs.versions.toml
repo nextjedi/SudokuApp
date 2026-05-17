@@ -33,9 +33,10 @@ robolectric = "4.13"
 androidx-test-ext-junit = "1.2.1"
 androidx-test-runner = "1.6.2"
 truth = "1.4.4"
-# MockK for android unit tests of StylusInputManager (mocks DigitRecognizer + MotionEvent).
+# MockK for Android unit tests of StylusInputManager (mocks DigitRecognizer + MotionEvent)
+# and PostHogAnalyticsService tests.
 mockk = "1.13.13"
-# Turbine for asserting Flow emissions in StylusInputManager tests.
+# Turbine for Flow assertions across Wave 2 (StylusInputManager + SensorService).
 turbine = "1.1.0"
 # ML Kit Digital Ink Recognition — bundled `en` text base model (locked decision §6 (2)
 # in test-plan/00-SYNTHESIS.md and REVAMP_PLAN.md §8). ~20 MB APK delta documented in
@@ -87,6 +88,8 @@ truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "mockk" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+# Lifecycle test artifact for TestLifecycleOwner used in SensorServiceTest.
+androidx-lifecycle-runtime-testing = { group = "androidx.lifecycle", name = "lifecycle-runtime-testing", version.ref = "lifecycle" }
 # ML Kit Digital Ink — recognizer entry-point + model loader. Bundled `en` model is
 # loaded via DigitalInkRecognitionModelIdentifier.fromLanguageTag("en"); see
 # MlKitDigitRecognizer.kt for the digit-only filter + confidence-threshold logic.
