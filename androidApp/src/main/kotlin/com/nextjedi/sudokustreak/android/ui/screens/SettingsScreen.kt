@@ -56,8 +56,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import com.nextjedi.sudokustreak.android.a11y.sectionHeadingTag
+import com.nextjedi.sudokustreak.android.a11y.sliderIntegerStateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -372,13 +378,15 @@ private fun StylusSection(
         ) { vm.setStylusMode(it) }
         .slider(
             label = "Recognition confidence",
-            description = "Higher = stricter (default 0.75)",
+            description = "Higher = stricter (default 75%)",
             value = settings.stylusConfidenceThreshold,
             valueRange = 0.6f..0.9f,
             steps = 5,  // 0.60 / 0.65 / 0.70 / 0.75 / 0.80 / 0.85 / 0.90
             tag = "slider_stylusConfidence",
             rowTag = "row_stylusConfidence",
-            valueLabel = { "%.2f".format(it) },
+            // Phase 5.5 a11y: render as percentage rather than float so TalkBack
+            // announces "75 percent" instead of "0.75". Matches J-4 audit row.
+            valueLabel = { "${(it * 100).toInt()} percent" },
         ) { vm.setStylusConfidence(it) }
         .toggle(
             label = "Pressure → bold notes",
@@ -559,7 +567,10 @@ private fun SolverSection(
             stepSize = 1,
             tag = "slider_hintDepth",
             rowTag = "row_hintDepth",
-            valueLabel = { "Level $it" },
+            // Phase 5.5 a11y: "3 of 5" is announced by TalkBack via SliderRow's
+            // stateDescription. Lena's J-4 audit row: "Level 3" did not convey the
+            // scale endpoint to a blind user (level out of how many?).
+            valueLabel = { "$it of 5" },
         ) { vm.setHintDepth(it) }
         .chip(
             label = "Solver speed",
@@ -708,6 +719,11 @@ private fun DataPrivacySection(
 @Composable
 private fun SectionShell(title: String, rows: List<@Composable () -> Unit>) {
     Column(modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp)) {
+        // Phase 5.5 a11y: mark each section title as a heading (Compose `heading()`
+        // semantic) so VoiceOver's rotor + TalkBack's "navigate by heading" gesture
+        // jumps section-to-section. The testTag swaps to `heading_*` produced by
+        // [sectionHeadingTag] so tests can enumerate the 8 headings deterministically.
+        // See AccessibilityFeaturesTest.kt `settingsSection_headersHaveRoleHeading`.
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
@@ -716,7 +732,11 @@ private fun SectionShell(title: String, rows: List<@Composable () -> Unit>) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 8.dp, top = 4.dp, bottom = 8.dp)
-                .testTag("section_${title.lowercase().replace(" & ", "_").replace(" ", "_")}"),
+                .semantics {
+                    heading()
+                    contentDescription = title
+                }
+                .testTag(sectionHeadingTag(title)),
         )
         Surface(
             shape = RoundedCornerShape(16.dp),
@@ -919,7 +939,15 @@ private fun SliderRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .testTag(tag)
-                .semantics { contentDescription = "$label. ${valueLabel(value)}. $description" },
+                .semantics {
+                    contentDescription = "$label. ${valueLabel(value)}. $description"
+                    // Phase 5.5 a11y: override M3 Slider's default float announcement
+                    // ("0.6") with the integer phrasing from valueLabel (e.g. "3 of 5").
+                    // Per Lena's J-4 audit row: blind users cannot map 0.6 to its real
+                    // meaning. The valueLabel already produces user-friendly text.
+                    stateDescription = valueLabel(value)
+                    role = Role.Button
+                },
         )
     }
 }

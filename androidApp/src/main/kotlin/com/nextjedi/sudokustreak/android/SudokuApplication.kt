@@ -1,8 +1,24 @@
 package com.nextjedi.sudokustreak.android
 
 import android.app.Application
+import android.content.Context
+import androidx.datastore.preferences.preferencesDataStore
 import com.nextjedi.sudokustreak.android.analytics.AnalyticsModule
 import com.nextjedi.sudokustreak.android.sensor.SensorServiceProvider
+
+/**
+ * Legacy `DataStore<Preferences>` extension — backs the historical stats keys
+ * (games_played, best_*, current_streak). Wave-2 settings moved to a typed
+ * `DataStore<AppSettings>` (see [com.nextjedi.sudokustreak.android.storage.SettingsModule])
+ * but the stats keys remain in the Preferences bag per the locked decision in
+ * test-plan/00-SYNTHESIS.md §6 (3).
+ *
+ * Restored from `.claude/agent-overflow/SudokuApplication.kt.before-cherry` to
+ * unblock the Phase 5.5 a11y agent (and every subsequent agent) — MainActivity
+ * and several ViewModels reference `context.dataStore` so the build cannot
+ * compile without this extension.
+ */
+val Context.dataStore by preferencesDataStore(name = "sudoku_prefs")
 
 /**
  * Process-wide [Application] subclass for the Brain Gym Android app.
