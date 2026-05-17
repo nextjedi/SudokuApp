@@ -22,6 +22,25 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
+        // ----------------------------------------------------------------------
+        // PostHog (self-hosted) — pulled from gradle.properties at build time.
+        // See locked decision §18.7 in REVAMP_PLAN.md. Default values are
+        // placeholders that PostHogAnalyticsService.initialize() refuses to use,
+        // so a forgotten config can never accidentally hit posthog.com.
+        // Override via -PPOSTHOG_HOST / -PPOSTHOG_API_KEY at build time, or via
+        // ~/.gradle/gradle.properties for per-developer values.
+        // ----------------------------------------------------------------------
+        buildConfigField(
+            "String",
+            "POSTHOG_HOST",
+            "\"${project.findProperty("POSTHOG_HOST") ?: "https://posthog.example.local"}\""
+        )
+        buildConfigField(
+            "String",
+            "POSTHOG_API_KEY",
+            "\"${project.findProperty("POSTHOG_API_KEY") ?: ""}\""
+        )
     }
 
     signingConfigs {
@@ -57,6 +76,9 @@ android {
 
     buildFeatures {
         compose = true
+        // Required for the POSTHOG_HOST / POSTHOG_API_KEY buildConfigField values
+        // injected above. AGP 8.0+ defaults this to false; opt in explicitly.
+        buildConfig = true
     }
 
     testOptions {
@@ -85,6 +107,8 @@ dependencies {
     //   • SensorService expect/actual wired from SudokuApplication.onCreate +
     //     MainActivity.onCreate via SensorServiceProvider
     //   • AppSettings + AppSettingsRepository (typed DataStore<AppSettings>)
+    //   • AnalyticsService contract — implemented by PostHogAnalyticsService here;
+    //     SettingsViewModel toggles initialize()/shutdown() on analyticsOptIn flips.
     implementation(project(":domain"))
 
     implementation(libs.androidx.core.ktx)
@@ -111,6 +135,10 @@ dependencies {
     // kotlinx.serialization JSON for AppSettings persistence (delegated to AppSettingsMigrator).
     implementation(libs.kotlinx.serialization.json)
 
+    // PostHog Android SDK — self-hosted analytics. Pinned in libs.versions.toml.
+    // Never initialized at app start; only after analyticsOptIn opts in.
+    implementation(libs.posthog.android)
+
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
 
@@ -122,8 +150,10 @@ dependencies {
     testImplementation(libs.androidx.test.ext.junit)
     testImplementation(libs.compose.ui.test.junit4)
     testImplementation(libs.kotlinx.coroutines.test)
-    // Settings agent (Wave 2): SettingsScreenTest stubs `DataStore<Preferences>`
-    // via MockK so the StatsViewModel can be constructed without DataStore IO.
+    // MockK used by:
+    //   • SettingsScreenTest — stubs `DataStore<Preferences>` for StatsViewModel
+    //   • PostHogAnalyticsServiceTest — mocks PostHogInterface
+    //   • AnalyticsOptInFlowTest — mocks AnalyticsService init/shutdown
     testImplementation(libs.mockk)
 
     androidTestImplementation(libs.androidx.test.runner)

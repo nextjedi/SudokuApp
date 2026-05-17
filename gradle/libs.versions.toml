@@ -33,8 +33,10 @@ robolectric = "4.13"
 androidx-test-ext-junit = "1.2.1"
 androidx-test-runner = "1.6.2"
 truth = "1.4.4"
-# MockK for Android unit tests of StylusInputManager (mocks DigitRecognizer + MotionEvent)
-# and PostHogAnalyticsService tests.
+# MockK for:
+#   • StylusInputManager tests — mocks DigitRecognizer + MotionEvent
+#   • PostHogAnalyticsService tests — mocks PostHogInterface
+#   • SettingsScreen tests — stubs DataStore<Preferences>
 mockk = "1.13.13"
 # Turbine for Flow assertions across Wave 2 (StylusInputManager + SensorService).
 turbine = "1.1.0"
@@ -49,6 +51,12 @@ mlkit-common = "18.11.0"
 # Required to `await()` ML Kit `Task<RecognitionResult>` results inside the
 # `Dispatchers.Default`-bound `MlKitDigitRecognizer.recognize`.
 kotlinx-coroutines-play-services = "1.8.1"
+# PostHog Android SDK — self-hosted analytics (locked decision §18.7). Latest stable
+# 3.x on Maven Central as of 2026-05-17: 3.44.1.
+# Docs: https://posthog.com/docs/libraries/android  /  https://posthog.com/docs/self-host
+# IMPORTANT: SDK is NOT auto-initialized at app start. PostHogAnalyticsService only
+# calls PostHogAndroid.with() after AppSettings.analyticsOptIn flips true.
+posthog-android = "3.44.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -96,6 +104,9 @@ androidx-lifecycle-runtime-testing = { group = "androidx.lifecycle", name = "lif
 mlkit-digital-ink = { group = "com.google.mlkit", name = "digital-ink-recognition", version.ref = "mlkit-digital-ink" }
 mlkit-common = { group = "com.google.mlkit", name = "common", version.ref = "mlkit-common" }
 kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "kotlinx-coroutines-play-services" }
+# PostHog Android SDK — `PostHogAndroid.setup(app, config)` + `PostHog` static facade.
+# Verified against https://repo1.maven.org/maven2/com/posthog/posthog-android/maven-metadata.xml
+posthog-android = { group = "com.posthog", name = "posthog-android", version.ref = "posthog-android" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

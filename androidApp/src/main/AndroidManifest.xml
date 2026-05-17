@@ -2,6 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
+        INTERNET — required for PostHog Analytics to talk to the self-hosted instance.
+        Even with this declared, NO network traffic flows until the user opts in via
+        Settings → Data & Privacy → Analytics. See PostHogAnalyticsService.initialize()
+        and AnalyticsOptInFlowTest.app_launch_without_opt_in_does_not_initialize.
+    -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!--
         Sensor hardware declarations — all marked NOT REQUIRED so that Play Store
         does not filter the listing on devices without one (e.g. tablets without a
         proximity sensor, or devices with no gyroscope). The SensorService
@@ -30,5 +38,25 @@
     <uses-feature
         android:name="android.hardware.sensor.gyroscope"
         android:required="false" />
+
+    <application
+        android:name=".SudokuApplication"
+        android:allowBackup="true"
+        android:fullBackupContent="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.SudokuBrainGym">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
 
 </manifest>

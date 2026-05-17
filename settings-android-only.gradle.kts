@@ -24,7 +24,9 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "SudokuKMP"
-// :domain hosts AppSettings + AppSettingsRepository + Migrator (Wave 1 contracts the
-// settings agent wires up in Wave 2). Without :domain the new SettingsViewModel +
-// AppSettingsDataStoreRepository cannot resolve their imports.
+// :domain hosts:
+//   • AppSettings + AppSettingsRepository + Migrator (settings agent Wave 2)
+//   • AnalyticsService contract (PostHog agent Wave 2)
+//   • SensorService + StylusInputManager actuals (sensor + stylus agents Wave 2)
+// All of androidApp's new ViewModels + analytics depend on :domain.
 include(":shared", ":domain", ":androidApp")
