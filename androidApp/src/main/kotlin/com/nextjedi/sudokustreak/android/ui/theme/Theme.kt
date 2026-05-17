@@ -15,6 +15,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import com.nextjedi.sudokustreak.domain.settings.ColorBlindMode
+import com.nextjedi.sudokustreak.domain.settings.ThemeMode
 
 /**
  * Master Sudoku theme for the Android app. Replaces the legacy single-light

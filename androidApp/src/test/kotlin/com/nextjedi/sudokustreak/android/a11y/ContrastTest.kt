@@ -7,7 +7,7 @@ import com.nextjedi.sudokustreak.android.ui.theme.BrandAmberDeuteranopia
 import com.nextjedi.sudokustreak.android.ui.theme.BrandAmberProtanopia
 import com.nextjedi.sudokustreak.android.ui.theme.BrandTealDeuteranopia
 import com.nextjedi.sudokustreak.android.ui.theme.BrandTealProtanopia
-import com.nextjedi.sudokustreak.android.ui.theme.ColorBlindMode
+import com.nextjedi.sudokustreak.domain.settings.ColorBlindMode
 import com.nextjedi.sudokustreak.android.ui.theme.DarkColors
 import com.nextjedi.sudokustreak.android.ui.theme.LightColors
 import com.nextjedi.sudokustreak.android.ui.theme.applyColorBlindOverlay
@@ -226,15 +226,12 @@ class ContrastTest {
             onPrimaryContainer to primaryContainer,
             ContrastThreshold.Aa,
         ),
-        // The on-primary/primary pair is **intentionally excluded** from automated
-        // verification — Brand's BrandPrimary (#4F9EFF) over Material's white
-        // `onPrimary` lands at ~2.7:1, which fails BOTH WCAG 1.4.3 AA (4.5:1) and
-        // 1.4.11 Non-text Contrast (3:1). The design system mitigates by:
-        //   1. Using `primaryContainer` (pale blue) as the surface for any text-
-        //      bearing primary button (e.g. "Back to Home"); that pair passes AA.
-        //   2. Wrapping FAB icons in a darker secondary stroke when colour-blind
-        //      mode is active (see Theme.applyColorBlindOverlay).
-        // The exclusion is logged in build-report-a11y.md as `KNOWN_ISSUE_001`.
+        // Architecture audit v2 darkened `BrandPrimary` from `#4F9EFF` (~2.7:1
+        // over white, failing AA + non-text) to Material Blue 700 `#1976D2`.
+        // KNOWN_ISSUE_001 is now resolved: the previously-excluded
+        // `onPrimary/primary` pair lands at ~4.6:1 — clears WCAG 1.4.3 AA (4.5:1)
+        // and is asserted unconditionally below.
+        Triple("onPrimary/primary", onPrimary to primary, ContrastThreshold.Aa),
         // Error label text is rendered at ≥ 14 pt semibold throughout the app — use
         // the AA Large threshold (3:1) per WCAG 1.4.3. The Material default error
         // red intentionally lands ~3.8:1 against white.

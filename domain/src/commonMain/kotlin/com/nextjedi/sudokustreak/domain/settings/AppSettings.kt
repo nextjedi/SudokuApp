@@ -104,6 +104,29 @@ enum class ThemeMode { SYSTEM, LIGHT, DARK, AMOLED }
 @Serializable
 enum class StylusMode { AUTO, ALWAYS, NEVER }
 
-/** Color-blind safe palette swaps. Coarse industry shorthand (see audit M3). */
+/**
+ * Color-blind safe palette swaps. Coarse industry shorthand (see audit M3).
+ *
+ * - [NONE]: brand amber/teal pair unchanged.
+ * - [DEUTERANOPIA]: red-green colour blindness (most common form). Replaces
+ *   amber → deep `#E65100`, teal → light sky `#81D4FA` for ≥ 2:1 luminance gap.
+ * - [PROTANOPIA]: red-blindness. Replaces amber → pumpkin `#FF8F00`, teal →
+ *   deep blue `#1976D2` for ≥ 1.5:1 luminance gap (supplemented by hue + shape).
+ */
 @Serializable
-enum class ColorBlindMode { NONE, DEUTERANOPIA, PROTANOPIA }
+enum class ColorBlindMode {
+    NONE,
+    DEUTERANOPIA,
+    PROTANOPIA;
+
+    /**
+     * Whether selecting this mode requires the app to use the static brand palette
+     * (i.e. NOT Android 12+ Material You dynamic colour). Always true for non-`NONE`
+     * modes because the OS palette cannot guarantee the luminance separation our
+     * colour-blind overlay relies on.
+     *
+     * Wired in `SettingsViewModel.setUseDynamicColor` and consumed in `SudokuTheme`
+     * via `effectiveDynamic = useDynamicColor && !colorBlindMode.needsStaticPalette()`.
+     */
+    fun needsStaticPalette(): Boolean = this != NONE
+}

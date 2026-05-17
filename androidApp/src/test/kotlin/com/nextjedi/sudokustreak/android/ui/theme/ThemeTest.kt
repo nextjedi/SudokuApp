@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
 import com.google.common.truth.Truth.assertThat
+import com.nextjedi.sudokustreak.domain.settings.ColorBlindMode
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -62,14 +63,13 @@ class ThemeTest {
     }
 
     @Test
-    fun lightColors_onPrimary_overPrimary_passesLargeTextAA() {
-        // White (#FFFFFF) over BrandPrimary (#4F9EFF) measures ~2.75:1 — passes the
-        // 18pt+ / 14pt-bold "large text AA" threshold (3:1 relaxed to 2.5 via the
-        // M3 contrast model — the M3E review §10 flags this as a known design trade-off
-        // documented in REVAMP_PLAN §2). We assert > 2.5 to make sure no future
-        // primary token change degrades this further.
+    fun lightColors_onPrimary_overPrimary_passesAA() {
+        // Architecture audit v2 darkened BrandPrimary from #4F9EFF to Material Blue
+        // 700 (#1976D2). The new ratio is ~4.6:1, comfortably clearing WCAG 1.4.3
+        // AA at 4.5:1. KNOWN_ISSUE_001 in `build-report-a11y.md` is now resolved
+        // — assert the stronger threshold so any future regression fails fast.
         val ratio = contrast(LightColors.onPrimary, LightColors.primary)
-        assertThat(ratio).isGreaterThan(2.5)
+        assertThat(ratio).isGreaterThan(4.5)
     }
 
     @Test

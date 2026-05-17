@@ -328,4 +328,39 @@ class AppSettingsTest {
         assertNotNull(AppSettings.CURRENT_SCHEMA_VERSION)
         assertTrue(AppSettings.CURRENT_SCHEMA_VERSION >= 1)
     }
+
+    // ---------- Collapsed enum smoke tests (architecture audit v2) ----------
+    //
+    // These tests pin the contract for the `:domain`-owned enums after the v2
+    // architecture audit collapsed the duplicate `androidApp/ui/theme/ThemeMode.kt`
+    // and `androidApp/ui/theme/ColorBlindMode.kt` copies into this module. Any future
+    // attempt to re-introduce a parallel enum should break a downstream import; these
+    // tests catch the upstream invariants the call sites depend on.
+
+    @Test
+    fun themeMode_defaultsToSystem() {
+        assertEquals(ThemeMode.SYSTEM, AppSettings().themeMode)
+        // Verify the four-mode shape used by SudokuTheme's `when (themeMode)` block.
+        assertEquals(4, ThemeMode.values().size)
+        assertTrue(ThemeMode.values().toList().containsAll(
+            listOf(ThemeMode.SYSTEM, ThemeMode.LIGHT, ThemeMode.DARK, ThemeMode.AMOLED),
+        ))
+    }
+
+    @Test
+    fun colorBlindMode_defaultsToNone() {
+        assertEquals(ColorBlindMode.NONE, AppSettings().colorBlindMode)
+        // Verify the three-mode shape used by `applyColorBlindOverlay`.
+        assertEquals(3, ColorBlindMode.values().size)
+    }
+
+    @Test
+    fun colorBlindMode_needsStaticPalette_trueForNonNone() {
+        // Wired into `SudokuTheme` to gate Android 12+ Material You dynamic colour.
+        // Replaces the old `androidApp/ui/theme/ColorBlindMode.needsStaticPalette()`
+        // member function — same semantics, lives in :domain now.
+        assertFalse(ColorBlindMode.NONE.needsStaticPalette())
+        assertTrue(ColorBlindMode.DEUTERANOPIA.needsStaticPalette())
+        assertTrue(ColorBlindMode.PROTANOPIA.needsStaticPalette())
+    }
 }

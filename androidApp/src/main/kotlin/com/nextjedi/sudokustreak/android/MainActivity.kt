@@ -16,11 +16,25 @@ import com.nextjedi.sudokustreak.android.viewmodel.GameViewModel
 import com.nextjedi.sudokustreak.android.viewmodel.SettingsViewModel
 import com.nextjedi.sudokustreak.android.viewmodel.StatsViewModel
 import com.nextjedi.sudokustreak.domain.settings.AppSettings
-import com.nextjedi.sudokustreak.domain.settings.ColorBlindMode as DomainColorBlindMode
-import com.nextjedi.sudokustreak.domain.settings.ThemeMode as DomainThemeMode
-import com.nextjedi.sudokustreak.android.ui.theme.ColorBlindMode as ThemeColorBlindMode
-import com.nextjedi.sudokustreak.android.ui.theme.ThemeMode as ThemeThemeMode
 
+/**
+ * Single-activity host for the Sudoku Brain Gym Android app.
+ *
+ * Wires three [ViewModelProvider.Factory]-constructed ViewModels (`GameViewModel`,
+ * `SettingsViewModel`, `StatsViewModel`) into the [AppNavigation] graph, and
+ * binds the [SensorService] lifecycle observer to this activity so sensors only
+ * fire while RESUMED.
+ *
+ * Live-collects [AppSettings] from the typed `DataStore<AppSettings>` so theme +
+ * accessibility flags update immediately when the user flips a toggle.
+ *
+ * ## Refactor note (architecture audit Wave 2)
+ *
+ * The previous incarnation kept duplicate `ThemeMode` / `ColorBlindMode` enums
+ * inside `ui/theme/` and mapped across the boundary here. Those duplicates have
+ * been deleted — `SudokuTheme` now consumes the domain enums directly, so this
+ * file no longer needs `DomainXxx.toThemeLayer()` mappers.
+ */
 class MainActivity : ComponentActivity() {
 
     private val gameViewModel: GameViewModel by lazy {
@@ -47,8 +61,8 @@ class MainActivity : ComponentActivity() {
             // → colour scheme becomes dark within the same frame).
             val settings by settingsViewModel.settings.collectAsState(initial = AppSettings())
             SudokuTheme(
-                themeMode = settings.themeMode.toThemeLayer(),
-                colorBlindMode = settings.colorBlindMode.toThemeLayer(),
+                themeMode = settings.themeMode,
+                colorBlindMode = settings.colorBlindMode,
                 useDynamicColor = settings.useDynamicColor,
                 reduceMotion = settings.reduceMotion,
             ) {
@@ -63,23 +77,10 @@ class MainActivity : ComponentActivity() {
 }
 
 /**
- * The Theme layer ships its OWN copies of `ThemeMode` + `ColorBlindMode` (see
- * `ui/theme/ThemeMode.kt`) because they were written before `:domain` existed. Until a
- * follow-up agent collapses the two pairs, we map across the boundary here.
+ * Hand-rolled ViewModelProvider.Factory that supplies the three top-level
+ * ViewModels. Replaced when the DI agent lands a Koin / typed-graph container —
+ * tracked in `test-plan/12-architecture-audit-v2.md` recommended next steps.
  */
-private fun DomainThemeMode.toThemeLayer(): ThemeThemeMode = when (this) {
-    DomainThemeMode.SYSTEM -> ThemeThemeMode.SYSTEM
-    DomainThemeMode.LIGHT -> ThemeThemeMode.LIGHT
-    DomainThemeMode.DARK -> ThemeThemeMode.DARK
-    DomainThemeMode.AMOLED -> ThemeThemeMode.AMOLED
-}
-
-private fun DomainColorBlindMode.toThemeLayer(): ThemeColorBlindMode = when (this) {
-    DomainColorBlindMode.NONE -> ThemeColorBlindMode.NONE
-    DomainColorBlindMode.DEUTERANOPIA -> ThemeColorBlindMode.DEUTERANOPIA
-    DomainColorBlindMode.PROTANOPIA -> ThemeColorBlindMode.PROTANOPIA
-}
-
 class DataStoreViewModelFactory(
     private val context: android.content.Context
 ) : ViewModelProvider.Factory {

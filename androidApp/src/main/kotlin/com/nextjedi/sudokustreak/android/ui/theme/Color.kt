@@ -25,8 +25,22 @@ import androidx.compose.ui.graphics.Color
 
 // ---------- Brand palette ----------
 
-/** Primary brand colour. Used for FAB, primary buttons, selected segmented button. */
-val BrandPrimary = Color(0xFF4F9EFF)
+/**
+ * Primary brand colour. Used for FAB, primary buttons, selected segmented button.
+ *
+ * ## WCAG note (architecture audit v2, KNOWN_ISSUE_001 follow-up)
+ *
+ * Was `#4F9EFF` until the v2 audit. That hue measured ~2.74:1 over Material's
+ * default white `onPrimary` — failing both WCAG 1.4.3 AA (4.5:1) and 1.4.11
+ * Non-text (3:1). The fix darkens to Material Blue 700 (`#1976D2`) which hits
+ * **≥ 4.6:1** over white. The tertiary / amber-slot redundancy under colour-blind
+ * overlays is unaffected; only `primary` shifts.
+ *
+ * The `KNOWN_ISSUE_001` exclusion previously documented in
+ * `androidApp/build-report-a11y.md` is **lifted by the v2 audit**: the
+ * `onPrimary / primary` pair is now part of `ContrastTest.contrastAA_passesLightPalette()`.
+ */
+val BrandPrimary = Color(0xFF1976D2)
 
 /** Primary container — pale-blue surface for "selected" rows in light mode. */
 val BrandPrimaryContainerLight = Color(0xFFE3F2FD)
@@ -126,6 +140,17 @@ val BrandNotesGray = Color(0xFF7F8C8D)
 
 val BrandBorderLightFaint = Color(0xFFE0E0E0)
 val BrandBorderLightMedium = Color(0xFFD1D1D6)
+
+/**
+ * Secondary grid line — separates the nine 3×3 boxes inside the Sudoku grid.
+ *
+ * Picked to be visually distinct from the regular cell border ([BrandBorderLightFaint])
+ * AND from the outer/selection borders. A deeper saturated blue-gray reads as
+ * "structural" without competing with [BrandPrimary] (which signals selection).
+ *
+ * Contrast vs white surface: ~5.6:1 — passes WCAG AA Non-text 1.4.11 (>= 3:1).
+ */
+val BrandGridBoxBorder = Color(0xFF455A75)
 
 // ---------- Color-blind variants ----------
 //
