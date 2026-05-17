@@ -16,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -31,6 +33,7 @@ import com.nextjedi.sudokustreak.android.a11y.gridContainerSemantics
 import com.nextjedi.sudokustreak.android.a11y.largeTextScaledSp
 import com.nextjedi.sudokustreak.android.ui.theme.BrandBorderLightFaint
 import com.nextjedi.sudokustreak.android.ui.theme.BrandErrorRed
+import com.nextjedi.sudokustreak.android.ui.theme.BrandGridBoxBorder
 import com.nextjedi.sudokustreak.android.ui.theme.BrandNavyText
 import com.nextjedi.sudokustreak.android.ui.theme.BrandNotesGray
 import com.nextjedi.sudokustreak.android.ui.theme.BrandPrimary
@@ -115,7 +118,9 @@ fun SudokuGrid(
             .fillMaxWidth()
             .padding(horizontal = 8.dp)
             .gridContainerSemantics()
-            .border(2.dp, BrandNavyText)
+            // Outer border bumped 2dp → 3dp solid navy so the grid frame reads
+            // as the strongest line in the hierarchy.
+            .border(3.dp, BrandNavyText)
             .testTag(TAG_GRID)
     ) {
         for (row in 0 until 9) {
@@ -183,8 +188,16 @@ fun SudokuCellBox(
         modifier = modifier
             .aspectRatio(1f)
             .background(bgColor)
-            .border(0.5.dp, BrandBorderLightFaint)
-            .borderHeavySides(row, col)
+            // Cell-level border bumped from 0.5dp → 1dp for clarity on real
+            // devices; #E0E0E0 stays as the faint line that separates cells
+            // WITHIN a 3×3 box.
+            .border(1.dp, BrandBorderLightFaint)
+            // 3×3 box separators drawn as a single secondary-coloured line on
+            // the right edge of col 2 / col 5 and bottom edge of row 2 / row 5.
+            // This replaces the previous Modifier.border(2.dp) approach that
+            // was drawing a thick frame around the WHOLE cell (all 4 sides),
+            // not just the box-boundary side.
+            .gridBoxSeparator(row, col)
             .cellSemantics(
                 row = row,
                 col = col,
@@ -247,15 +260,42 @@ fun SudokuCellBox(
 }
 
 /**
- * Heavy interior border between 3-cell boxes — applied as a per-side `border`
- * for the right / bottom edges of each 3-cell column / row that isn't on the
- * outer edge of the grid.
+ * Draws the secondary 3×3-box separator on the right edge (when col == 2 or 5)
+ * and/or the bottom edge (when row == 2 or 5) of a cell.
+ *
+ * Uses [Modifier.drawBehind] with explicit [drawLine] calls so the line lands
+ * **only on the box-boundary side**, not all four sides of the cell. The
+ * previous implementation used [Modifier.border] which draws a full frame
+ * around the cell, producing a ghost-frame on cells at the box corners.
+ *
+ * Layout choice rationale:
+ *  - 2.5dp width gives the box line ~2.5× the visual weight of the 1dp cell
+ *    line ([BrandBorderLightFaint]) — enough contrast at typical device DPI
+ *    without overpowering the 3dp outer frame ([BrandNavyText]).
+ *  - [BrandGridBoxBorder] (#455A75) is a saturated blue-gray distinct from
+ *    both the cell border (light gray) and the outer/selection border (navy /
+ *    primary blue) — passes WCAG AA Non-text contrast (≥3:1) on white.
  */
-private fun Modifier.borderHeavySides(row: Int, col: Int): Modifier {
-    var m = this
-    if (col % 3 == 2 && col != 8) m = m.then(Modifier.border(2.dp, BrandNavyText.copy(alpha = 0.4f)))
-    if (row % 3 == 2 && row != 8) m = m.then(Modifier.border(2.dp, BrandNavyText.copy(alpha = 0.4f)))
-    return m
+private fun Modifier.gridBoxSeparator(row: Int, col: Int): Modifier = drawBehind {
+    val strokePx = 2.5.dp.toPx()
+    // Right-edge: between box-columns 0|1 (after col 2) and 1|2 (after col 5).
+    if (col % 3 == 2 && col != 8) {
+        drawLine(
+            color = BrandGridBoxBorder,
+            start = Offset(size.width - strokePx / 2f, 0f),
+            end = Offset(size.width - strokePx / 2f, size.height),
+            strokeWidth = strokePx,
+        )
+    }
+    // Bottom-edge: between box-rows 0|1 (after row 2) and 1|2 (after row 5).
+    if (row % 3 == 2 && row != 8) {
+        drawLine(
+            color = BrandGridBoxBorder,
+            start = Offset(0f, size.height - strokePx / 2f),
+            end = Offset(size.width, size.height - strokePx / 2f),
+            strokeWidth = strokePx,
+        )
+    }
 }
 
 /**
