@@ -77,7 +77,13 @@ data class AppSettings(
     val soundEnabled: Boolean = true,
     val hapticsEnabled: Boolean = true,
     val musicEnabled: Boolean = false,
-    val analyticsOptIn: Boolean = false                       // opt-in only (locked decision 7)
+    val analyticsOptIn: Boolean = false,                      // opt-in only (locked decision 7)
+
+    // ---- Presentation cont. (1) — Android 12+ dynamic color ----
+    // Opt-IN only. Auto-disabled (forced false) when colorBlindMode != NONE because the
+    // OS palette cannot guarantee the luminance separation required by the colour-blind
+    // overlay. Persisted so the user setting survives a reboot + colour-blind toggle off.
+    val useDynamicColor: Boolean = false
 ) {
     companion object {
         /** Current schema version. Increment when adding/removing/renaming fields. */
